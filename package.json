@@ -1,0 +1,26 @@
+{
+  "name": "pool-ladder-website",
+  "version": "1.0.0",
+  "description": "Competitive 8-Ball Pool Ladder Tournament Website",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "keywords": [
+    "pool",
+    "tournament",
+    "ladder",
+    "8-ball",
+    "competition"
+  ],
+  "author": "",
+  "license": "MIT"
+}

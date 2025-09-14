@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - The Pool Ladder</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        // Admin panel requires password every time
+        let isAuthenticated = false;
+        
+        function promptForPassword() {
+            const password = prompt('Enter admin password:');
+            if (password === 'poolladder2025') {
+                isAuthenticated = true;
+                document.body.style.display = 'block';
+                return true;
+            } else if (password !== null) {
+                alert('Incorrect password. Access denied.');
+                window.location.href = '../index.html';
+                return false;
+            } else {
+                window.location.href = '../index.html';
+                return false;
+            }
+        }
+        
+        // Hide body until authenticated
+        document.body.style.display = 'none';
+        
+        // Prompt for password on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!promptForPassword()) {
+                return;
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎱</div>
+                <span class="logo-text">The Pool Ladder</span>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="ladder.html" class="nav-link">Ladder</a>
+                <a href="matches.html" class="nav-link">Matches</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+            </nav>
+            <div class="user-actions">
+                <span class="admin-user">🔒 Admin Mode</span>
+                <button class="btn btn-outline" onclick="openChangePasswordModal()">Change Password</button>
+                <button class="btn btn-outline" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Dashboard Header -->
+    <section class="admin-header">
+        <div class="container">
+            <div class="admin-header-content">
+                <div class="admin-title">
+                    <h1>ADMIN CONTROL PANEL</h1>
+                    <p>League Management Dashboard</p>
+                </div>
+                <div class="admin-stats">
+                    <div class="quick-stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Total Players</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Scheduled Matches</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Completed Matches</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Navigation -->
+    <section class="admin-nav">
+        <div class="container">
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="players">Players</button>
+                <button class="admin-tab" data-tab="matches">Matches</button>
+                <button class="admin-tab" data-tab="ladder">Ladder</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Players Tab -->
+    <section class="admin-content" id="players-tab">
+        <div class="container">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Player Management</h2>
+                    <button class="btn btn-primary" onclick="openAddPlayerModal()">Add New Player</button>
+                </div>
+                
+                <div class="players-list" id="playersList">
+                    <div class="no-players">
+                        <p>No players added yet. Use the "Add New Player" button to add players to the league.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Matches Tab -->
+    <section class="admin-content" id="matches-tab" style="display: none;">
+        <div class="container">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Match Management</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openScheduleMatchModal()">Schedule Match</button>
+                    </div>
+                </div>
+                
+                <div class="matches-grid">
+                    <!-- Scheduled Matches -->
+                    <div class="matches-section">
+                        <h3>Scheduled Matches</h3>
+                        <div class="admin-match-cards">
+                            <div class="no-matches-message">
+                                <p>No matches currently scheduled. Use the "Schedule Match" button above to create new matches.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Results -->
+                    <div class="matches-section">
+                        <h3>Recent Results</h3>
+                        <div class="admin-match-cards">
+                            <div class="no-results-message">
+                                <p>No completed matches yet. Results will appear here when matches are finished and recorded.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ladder Tab -->
+    <section class="admin-content" id="ladder-tab" style="display: none;">
+        <div class="container">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Ladder Control</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-outline" onclick="recalculateRankings()">Recalculate Rankings</button>
+                        <button class="btn btn-primary" onclick="resetLadder()">Reset Ladder</button>
+                    </div>
+                </div>
+                
+                <div class="ladder-controls">
+                    <div class="control-panel">
+                        <h3>🏆 Interactive Ladder Management</h3>
+                        <p class="ladder-instructions">
+                            <strong>Drag and drop</strong> players to manually adjust their ladder positions. 
+                            Rankings will be saved automatically and reflected on the public ladder page.
+                        </p>
+                        
+                        <div class="ladder-table-container">
+                            <table class="ladder-table" id="ladderTable">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Record</th>
+                                        <th>Last Active</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ladderTableBody">
+                                    <tr class="no-players-row">
+                                        <td colspan="5" class="text-center">No players in the ladder yet. Add players in the Players tab.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="ladder-info">
+                            <h4>🎯 Ranking System Rules</h4>
+                            <ul>
+                                <li><strong>Match Results:</strong> Winners gain points and move up, losers lose points</li>
+                                <li><strong>Manual Adjustment:</strong> Drag players to reorder manually when needed</li>
+                                <li><strong>Auto-calculation:</strong> Rankings recalculate automatically after each match</li>
+                                <li><strong>Public Display:</strong> Changes are instantly reflected on the public ladder</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Admin Panel</h4>
+                    <p>League management system</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="../index.html">Public Site</a>
+                    <a href="ladder.html">Rankings</a>
+                    <a href="matches.html">Matches</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>fasteddiespoolleague@proton.me</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 The Pool Ladder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add Player Modal -->
+    <div class="modal" id="addPlayerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Player</h3>
+                <button class="modal-close" onclick="closeAddPlayerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="admin-form" id="addPlayerForm">
+                    <div class="form-group">
+                        <label>Player Name *</label>
+                        <input type="text" name="playerName" class="form-input" placeholder="Enter player name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAddPlayerModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addNewPlayer()">Add Player</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm" class="admin-form">
+                    <div class="form-group">
+                        <label>Current Password *</label>
+                        <input type="password" id="currentPassword" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password *</label>
+                        <input type="password" id="newPassword" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password *</label>
+                        <input type="password" id="confirmPassword" class="form-input" required>
+                    </div>
+                    <div id="changePasswordError" class="auth-error" style="display: none;"></div>
+                    <div id="changePasswordSuccess" class="auth-info" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeChangePasswordModal()">Cancel</button>
+                <button type="submit" form="changePasswordForm" class="btn btn-primary" id="changePasswordSubmit">
+                    <span class="change-password-text">Change Password</span>
+                    <span class="change-password-loading" style="display: none;">Changing...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Match Modal -->
+    <div class="modal" id="scheduleMatchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Schedule Match</h3>
+                <button class="modal-close" onclick="closeScheduleMatchModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="admin-form" id="scheduleMatchForm">
+                    <div class="form-group">
+                        <label>Player 1 *</label>
+                        <select name="player1" class="form-input" required>
+                            <option value="">Select Player 1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Player 2 *</label>
+                        <select name="player2" class="form-input" required>
+                            <option value="">Select Player 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Match Date *</label>
+                        <input type="date" name="matchDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Match Time *</label>
+                        <input type="time" name="matchTime" class="form-input" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeScheduleMatchModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="scheduleMatch()">Schedule Match</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - The Pool Ladder</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎱</div>
+                <span class="logo-text">The Pool Ladder</span>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="ladder.html" class="nav-link">Ladder</a>
+                <a href="schedule.html" class="nav-link">Schedule</a>
+                <a href="results.html" class="nav-link">Results</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+            </nav>
+            <div class="user-actions">
+                <span class="login-indicator">🔒 Admin Login</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Section -->
+    <section class="login-section">
+        <div class="container">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h1>ADMIN LOGIN</h1>
+                        <p>Enter your credentials to access the admin panel</p>
+                    </div>
+                    
+                    <form class="login-form" id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" class="form-input" placeholder="Enter username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" class="form-input" placeholder="Enter password" required>
+                        </div>
+                        
+                        <div class="error-message" id="errorMessage" style="display: none;">
+                            Invalid username or password. Please try again.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-login">LOGIN</button>
+                    </form>
+                    
+                    <div class="login-footer">
+                        <p>Access restricted to authorized personnel only</p>
+                        <a href="../index.html" class="back-link">← Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>The Pool Ladder</h4>
+                    <p>Premier competitive 8-ball pool league</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank">Rules</a>
+                    <a href="ladder.html">Rankings</a>
+                    <a href="schedule.html">Schedule</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>fasteddiespoolleague@proton.me</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 The Pool Ladder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>

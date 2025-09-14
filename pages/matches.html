@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches - The Pool Ladder</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/matches.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎱</div>
+                <span class="logo-text">The Pool Ladder</span>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="ladder.html" class="nav-link">Ladder</a>
+                <a href="matches.html" class="nav-link active">Matches</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+            </nav>
+            <div class="user-actions">
+                <a href="login.html" class="admin-link">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">MATCH CENTER</h1>
+            <p class="page-subtitle">Scheduled matches and completed results</p>
+        </div>
+    </section>
+
+    <!-- Match Navigation -->
+    <section class="match-navigation">
+        <div class="container">
+            <div class="match-tabs">
+                <button class="match-tab active" data-tab="scheduled">
+                    <span class="tab-icon">📅</span>
+                    <span class="tab-text">Scheduled Matches</span>
+                    <span class="tab-count" id="scheduledCount">0</span>
+                </button>
+                <button class="match-tab" data-tab="results">
+                    <span class="tab-icon">🏆</span>
+                    <span class="tab-text">Match Results</span>
+                    <span class="tab-count" id="resultsCount">0</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Controls -->
+    <section class="results-controls">
+        <div class="container">
+            <div class="controls-grid">
+                <div class="search-filters">
+                    <input type="text" placeholder="Search by player..." id="playerSearch">
+                    <select id="timeFilter">
+                        <option value="all">All Time</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="season">This Season</option>
+                    </select>
+                </div>
+                <div class="view-options">
+                    <button class="btn btn-outline active" data-view="detailed">Detailed</button>
+                    <button class="btn btn-outline" data-view="compact">Compact</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scheduled Matches Section -->
+    <section class="match-content" id="scheduled-content">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">UPCOMING MATCHES</h2>
+                <div class="section-info">
+                    <p>Matches scheduled through the admin panel</p>
+                </div>
+            </div>
+            <div class="matches-container" id="scheduledMatches">
+                <div class="loading-state">
+                    <p>Loading scheduled matches...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Match Results Section -->
+    <section class="match-content" id="results-content" style="display: none;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">MATCH RESULTS</h2>
+                <div class="section-info">
+                    <p>Completed matches with full scores and statistics</p>
+                </div>
+            </div>
+            <div class="matches-container" id="matchResults">
+                <div class="loading-state">
+                    <p>Loading match results...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>The Pool Ladder</h4>
+                    <p>Premier competitive 8-ball pool league</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank">Rules</a>
+                    <a href="ladder.html">Rankings</a>
+                    <a href="matches.html">Matches</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>fasteddiespoolleague@proton.me</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 The Pool Ladder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/matches.js"></script>
+</body>
+</html>

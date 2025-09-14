@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Results - The Pool Ladder</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/results.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎱</div>
+                <span class="logo-text">The Pool Ladder</span>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="ladder.html" class="nav-link">Ladder</a>
+                <a href="schedule.html" class="nav-link">Schedule</a>
+                <a href="results.html" class="nav-link active">Results</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+            </nav>
+            <div class="user-actions">
+                <a href="login.html" class="admin-link">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">MATCH RESULTS</h1>
+            <p class="page-subtitle">Historical match outcomes and statistics</p>
+        </div>
+    </section>
+
+    <!-- Results Controls -->
+    <section class="results-controls">
+        <div class="container">
+            <div class="controls-grid">
+                <div class="search-filters">
+                    <input type="text" placeholder="Search by player..." id="playerSearch">
+                    <select id="timeFilter">
+                        <option value="all">All Time</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="season">This Season</option>
+                    </select>
+                    <select id="matchTypeFilter">
+                        <option value="all">All Matches</option>
+                        <option value="regular">Regular Season</option>
+                        <option value="championship">Championships</option>
+                        <option value="exhibition">Exhibition</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Match Results Section -->
+    <section class="match-results">
+        <div class="container">
+            <h2 class="section-title">MATCH RESULTS</h2>
+            <div class="results-info">
+                <div class="loading-state">
+                    <p>Loading match results...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>The Pool Ladder</h4>
+                    <p>Premier competitive 8-ball pool league</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank">Rules</a>
+                    <a href="ladder.html">Rankings</a>
+                    <a href="schedule.html">Schedule</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>fasteddiespoolleague@proton.me</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 The Pool Ladder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/results.js"></script>
+</body>
+</html>

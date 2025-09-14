@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladder Rankings - The Pool Ladder</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/ladder.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎱</div>
+                <span class="logo-text">The Pool Ladder</span>
+            </div>
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="ladder.html" class="nav-link active">Ladder</a>
+                <a href="matches.html" class="nav-link">Matches</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+            </nav>
+            <div class="user-actions">
+                <a href="login.html" class="admin-link">Admin</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">LADDER RANKINGS</h1>
+            <p class="page-subtitle">Current standings in the competitive 8-ball pool league</p>
+        </div>
+    </section>
+
+    <!-- Ranking Controls -->
+    <section class="ranking-controls">
+        <div class="container">
+            <div class="controls-grid">
+                <div class="search-box">
+                    <input type="text" placeholder="Search players..." id="playerSearch">
+                </div>
+                <div class="filter-controls">
+                    <select id="statusFilter">
+                        <option value="all">All Players</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                    <select id="sortFilter">
+                        <option value="rank">Sort by Rank</option>
+                        <option value="wins">Sort by Wins</option>
+                        <option value="winrate">Sort by Win Rate</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tier Indicators -->
+    <section class="tier-indicators">
+        <div class="container">
+            <div class="tier-legend">
+                <div class="tier-item champion">
+                    <div class="tier-color"></div>
+                    <span>Champion (1-3)</span>
+                </div>
+                <div class="tier-item contender">
+                    <div class="tier-color"></div>
+                    <span>Contender (4-6)</span>
+                </div>
+                <div class="tier-item challenger">
+                    <div class="tier-color"></div>
+                    <span>Challenger (7-10)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Ranking Table -->
+    <section class="rankings-table">
+        <div class="container">
+            <div class="table-container">
+                <table class="ladder-table" id="ladderTable">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Rank</th>
+                            <th class="player-col">Player</th>
+                            <th class="record-col">Record</th>
+                            <th class="winrate-col">Win Rate</th>
+                            <th class="status-col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ladderTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-table">
+                                <p>Loading ladder rankings...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ranking Visualization -->
+    <section class="ranking-viz">
+        <div class="container">
+            <h2>Win Rate Distribution</h2>
+            <div class="points-chart">
+                <div class="chart-container">
+                    <div class="empty-chart">
+                        <p>Win rate distribution chart will appear here once players have been added and matches have been played.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>The Pool Ladder</h4>
+                    <p>Premier competitive 8-ball pool league</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank">Rules</a>
+                    <a href="ladder.html">Rankings</a>
+                    <a href="matches.html">Matches</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>fasteddiespoolleague@proton.me</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 The Pool Ladder. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/ladder.js"></script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Test - Pool Ladder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #c0c0c0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #1a4a3a;
+            border: 1px solid #2a7a5a;
+            color: #39ff14;
+        }
+        .error {
+            background: #4a1a1a;
+            border: 1px solid #7a2a2a;
+            color: #ff4444;
+        }
+        .info {
+            background: #1a2a4a;
+            border: 1px solid #2a4a7a;
+            color: #44aaff;
+        }
+        button {
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #39ff14;
+        }
+        pre {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .workflow-step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #333;
+            border-radius: 6px;
+            border-left: 4px solid #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎱 Pool Ladder - Complete Workflow Test</h1>
+    
+    <div class="test-section">
+        <h2>📋 Workflow Test Overview</h2>
+        <p>This test will verify the complete match management workflow:</p>
+        <div class="workflow-step">
+            <strong>Step 1:</strong> Admin login and add players
+        </div>
+        <div class="workflow-step">
+            <strong>Step 2:</strong> Schedule matches between players
+        </div>
+        <div class="workflow-step">
+            <strong>Step 3:</strong> Record match results with full scores
+        </div>
+        <div class="workflow-step">
+            <strong>Step 4:</strong> Verify results appear on public results page
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Data Verification</h2>
+        <button onclick="checkAdminData()">Check Admin Data Structure</button>
+        <button onclick="testLocalStorage()">Test LocalStorage Access</button>
+        <button onclick="simulateWorkflow()">Simulate Complete Workflow</button>
+        <div id="dataResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Current System State</h2>
+        <button onclick="showSystemState()">Show Current System State</button>
+        <div id="systemState"></div>
+    </div>
+
+    <script>
+        function logResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function checkAdminData() {
+            logResult('Testing admin data structure...', 'info');
+            
+            try {
+                const adminData = JSON.parse(localStorage.getItem('poolLadderAdminData') || '{"players":[],"matches":[],"config":{}}');
+                
+                logResult(`✅ Admin data loaded successfully`, 'success');
+                logResult(`📊 Players: ${adminData.players?.length || 0}`, 'info');
+                logResult(`⚔️ Total Matches: ${adminData.matches?.length || 0}`, 'info');
+                
+                const completedMatches = adminData.matches?.filter(m => m.status === 'completed') || [];
+                const scheduledMatches = adminData.matches?.filter(m => m.status === 'scheduled') || [];
+                
+                logResult(`✅ Completed Matches: ${completedMatches.length}`, 'success');
+                logResult(`⏳ Scheduled Matches: ${scheduledMatches.length}`, 'info');
+                
+                document.getElementById('dataResults').innerHTML = `
+                    <pre>${JSON.stringify(adminData, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                logResult(`❌ Error accessing admin data: ${error.message}`, 'error');
+            }
+        }
+
+        function testLocalStorage() {
+            logResult('Testing localStorage functionality...', 'info');
+            
+            try {
+                // Test write
+                const testKey = 'poolLadderTest';
+                const testData = { test: 'data', timestamp: Date.now() };
+                localStorage.setItem(testKey, JSON.stringify(testData));
+                
+                // Test read
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                
+                if (retrieved.test === 'data') {
+                    logResult('✅ LocalStorage read/write working correctly', 'success');
+                } else {
+                    logResult('❌ LocalStorage data mismatch', 'error');
+                }
+                
+                // Cleanup
+                localStorage.removeItem(testKey);
+                
+            } catch (error) {
+                logResult(`❌ LocalStorage error: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateWorkflow() {
+            logResult('🚀 Starting complete workflow simulation...', 'info');
+            
+            try {
+                // Step 1: Create test players
+                logResult('Step 1: Creating test players...', 'info');
+                const adminData = JSON.parse(localStorage.getItem('poolLadderAdminData') || '{"players":[],"matches":[],"config":{}}');
+                
+                // Add test players if they don't exist
+                const testPlayers = [
+                    { id: Date.now() + 1, name: 'Test Player 1', rank: 1, wins: 0, losses: 0, points: 1000 },
+                    { id: Date.now() + 2, name: 'Test Player 2', rank: 2, wins: 0, losses: 0, points: 950 }
+                ];
+                
+                // Check if test players already exist
+                const existingTestPlayers = adminData.players.filter(p => p.name.startsWith('Test Player'));
+                if (existingTestPlayers.length === 0) {
+                    adminData.players.push(...testPlayers);
+                    logResult('✅ Test players created', 'success');
+                } else {
+                    logResult('ℹ️ Test players already exist, using existing ones', 'info');
+                }
+                
+                // Step 2: Schedule a test match
+                logResult('Step 2: Scheduling test match...', 'info');
+                const player1 = adminData.players[0];
+                const player2 = adminData.players[1];
+                
+                if (player1 && player2) {
+                    const testMatch = {
+                        id: Date.now(),
+                        player1: { id: player1.id, name: player1.name },
+                        player2: { id: player2.id, name: player2.name },
+                        date: new Date().toISOString().split('T')[0],
+                        time: '19:00',
+                        status: 'scheduled',
+                        created: new Date().toISOString()
+                    };
+                    
+                    adminData.matches.push(testMatch);
+                    logResult('✅ Test match scheduled', 'success');
+                    
+                    // Step 3: Complete the match with scores
+                    logResult('Step 3: Recording match result...', 'info');
+                    testMatch.status = 'completed';
+                    testMatch.player1Score = 8;
+                    testMatch.player2Score = 6;
+                    testMatch.winner = testMatch.player1;
+                    testMatch.loser = testMatch.player2;
+                    testMatch.completedDate = new Date().toISOString();
+                    
+                    // Update player stats
+                    player1.wins = (player1.wins || 0) + 1;
+                    player1.points = (player1.points || 1000) + 50;
+                    player2.losses = (player2.losses || 0) + 1;
+                    player2.points = Math.max(0, (player2.points || 1000) - 25);
+                    
+                    logResult('✅ Match result recorded with scores', 'success');
+                    
+                    // Save to localStorage
+                    localStorage.setItem('poolLadderAdminData', JSON.stringify(adminData));
+                    logResult('✅ Data saved to localStorage', 'success');
+                    
+                    logResult('🎉 Complete workflow simulation successful!', 'success');
+                    logResult('👀 Check the results page to see the completed match', 'info');
+                    
+                } else {
+                    logResult('❌ Insufficient players for match simulation', 'error');
+                }
+                
+            } catch (error) {
+                logResult(`❌ Workflow simulation error: ${error.message}`, 'error');
+            }
+        }
+
+        function showSystemState() {
+            logResult('Displaying current system state...', 'info');
+            
+            try {
+                const adminData = JSON.parse(localStorage.getItem('poolLadderAdminData') || '{"players":[],"matches":[],"config":{}}');
+                
+                const stateHTML = `
+                    <h3>🏆 Players (${adminData.players?.length || 0})</h3>
+                    ${adminData.players?.map(p => `
+                        <div style="margin: 10px 0; padding: 10px; background: #444; border-radius: 4px;">
+                            <strong>${p.name}</strong> - Rank #${p.rank} - ${p.wins || 0}W/${p.losses || 0}L - ${p.points || 0} points
+                        </div>
+                    `).join('') || '<p>No players found</p>'}
+                    
+                    <h3>📅 Scheduled Matches (${adminData.matches?.filter(m => m.status === 'scheduled').length || 0})</h3>
+                    ${adminData.matches?.filter(m => m.status === 'scheduled').map(m => `
+                        <div style="margin: 10px 0; padding: 10px; background: #444; border-radius: 4px;">
+                            <strong>${m.player1.name} vs ${m.player2.name}</strong> - ${m.date} at ${m.time}
+                        </div>
+                    `).join('') || '<p>No scheduled matches</p>'}
+                    
+                    <h3>🏁 Completed Matches (${adminData.matches?.filter(m => m.status === 'completed').length || 0})</h3>
+                    ${adminData.matches?.filter(m => m.status === 'completed').map(m => `
+                        <div style="margin: 10px 0; padding: 10px; background: #2a4a2a; border-radius: 4px; border-left: 4px solid #39ff14;">
+                            <strong>${m.winner.name} defeated ${m.loser.name}</strong> - Score: ${m.player1Score}-${m.player2Score}
+                            <br><small>Completed: ${new Date(m.completedDate).toLocaleString()}</small>
+                        </div>
+                    `).join('') || '<p>No completed matches</p>'}
+                `;
+                
+                document.getElementById('systemState').innerHTML = stateHTML;
+                
+            } catch (error) {
+                logResult(`❌ Error displaying system state: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic checks on load
+        window.addEventListener('load', function() {
+            logResult('🔧 Workflow test page loaded', 'success');
+            logResult('Click buttons above to run tests', 'info');
+            checkAdminData();
+        });
+    </script>
+
+    <div style="margin-top: 40px; padding: 20px; background: #2a2a2a; border-radius: 8px;">
+        <h3>📖 Manual Testing Instructions</h3>
+        <ol>
+            <li><strong>Admin Panel:</strong> Visit <a href="pages/admin.html" target="_blank" style="color: #00d4ff;">pages/admin.html</a> (password: poolladder2025)</li>
+            <li><strong>Add Players:</strong> Use "Add New Player" button to add at least 2 players</li>
+            <li><strong>Schedule Match:</strong> Go to Matches tab, use "Schedule Match" button</li>
+            <li><strong>Record Result:</strong> Click "Record Result" on scheduled match, enter scores</li>
+            <li><strong>View Results:</strong> Visit <a href="pages/results.html" target="_blank" style="color: #00d4ff;">pages/results.html</a> to see completed matches</li>
+        </ol>
+    </div>
+</body>
+</html>

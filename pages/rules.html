@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules - Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=https://www.ultimatepoolgroup.com/rules">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .redirect-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--deep-charcoal);
+            color: var(--chrome-silver);
+            text-align: center;
+            padding: 2rem;
+        }
+        .redirect-message h1 {
+            color: var(--electric-cyan);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .redirect-message p {
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+        .redirect-link {
+            background: var(--electric-cyan);
+            color: var(--obsidian-black);
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .redirect-link:hover {
+            background: var(--neon-green);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-message">
+        <h1>🎯 Redirecting to Official Rules</h1>
+        <p>You're being redirected to the official Ultimate Pool Group rules page...</p>
+        <p>If you're not redirected automatically, click the link below:</p>
+        <a href="https://www.ultimatepoolgroup.com/rules" class="redirect-link">
+            View Official Rules
+        </a>
+    </div>
+
+    <script>
+        // Immediate redirect for browsers that support it
+        window.location.replace("https://www.ultimatepoolgroup.com/rules");
+    </script>
+</body>
+</html>
