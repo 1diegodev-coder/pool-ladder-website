@@ -5,6 +5,10 @@
 const SUPABASE_URL = 'https://ngcgnklizohgoxmqhpdw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzcxMDAsImV4cCI6MjA3MzQ1MzEwMH0.jrc1XyDBH52TuWoc_ycrweMT54yAcg0H9BACxneO9uw';
 
+console.log('🔍 Supabase config loaded');
+console.log('📡 URL:', SUPABASE_URL);
+console.log('🔑 Key present:', !!SUPABASE_ANON_KEY);
+
 // Initialize Supabase client (will be loaded from CDN)
 let supabase;
 
@@ -39,29 +43,43 @@ function initializeSupabase() {
 }
 
 // Wait for Supabase to load
-function waitForSupabase(callback, maxAttempts = 100) {
+function waitForSupabase(callback, maxAttempts = 50) {
     let attempts = 0;
+    
     const checkSupabase = () => {
-        console.log(`🔄 Attempting to initialize Supabase (attempt ${attempts + 1}/${maxAttempts})`);
+        attempts++;
+        console.log(`🔄 Supabase check attempt ${attempts}/${maxAttempts}`);
+        console.log('🌐 window.supabase exists:', !!window.supabase);
         
+        if (window.supabase) {
+            console.log('📦 Supabase object type:', typeof window.supabase);
+            console.log('🔧 createClient available:', typeof window.supabase.createClient);
+        }
+        
+        // Try direct initialization
         if (window.supabase && typeof window.supabase.createClient === 'function') {
-            if (initializeSupabase()) {
-                console.log('✅ Supabase ready, executing callback');
+            try {
+                if (!supabase) {
+                    console.log('🚀 Attempting direct Supabase creation...');
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('✅ Supabase client created successfully!');
+                    console.log('🔗 Client object:', !!supabase);
+                }
                 callback();
                 return;
+            } catch (error) {
+                console.error('❌ Error creating Supabase client:', error);
             }
         }
         
         if (attempts < maxAttempts) {
-            attempts++;
-            setTimeout(checkSupabase, 200);
+            setTimeout(checkSupabase, 300);
         } else {
-            console.error('❌ Failed to load Supabase client after all attempts');
-            console.log('🔄 Falling back to localStorage');
-            // Fallback to localStorage
+            console.error('❌ Max attempts reached, falling back to localStorage');
             callback();
         }
     };
+    
     checkSupabase();
 }
 
