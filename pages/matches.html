@@ -153,6 +153,16 @@
     <!-- Database configuration -->
     <script src="../js/supabase-config.js"></script>
     
+    <!-- Force Supabase initialization -->
+    <script>
+        window.addEventListener('load', () => {
+            console.log('🔄 Matches page loaded, attempting Supabase initialization');
+            if (window.supabase && typeof initializeSupabase === 'function') {
+                initializeSupabase();
+            }
+        });
+    </script>
+    
     <!-- Sample data for demo -->
     <script src="../sample-data.js"></script>
     

@@ -10,17 +10,32 @@ let supabase;
 
 // Initialize Supabase client when the library loads
 function initializeSupabase() {
-    if (typeof supabase === 'undefined' && window.supabase && window.supabase.createClient) {
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase initialized successfully');
-            return true;
-        } catch (error) {
-            console.error('❌ Failed to initialize Supabase:', error);
+    try {
+        // Check if Supabase global is available
+        if (!window.supabase) {
+            console.log('⏳ Supabase library not loaded yet');
             return false;
         }
+        
+        // Check if createClient function exists
+        if (typeof window.supabase.createClient !== 'function') {
+            console.log('⏳ Supabase createClient not available yet');
+            return false;
+        }
+        
+        // Only initialize if we haven't already
+        if (typeof supabase === 'undefined') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase initialized successfully');
+            console.log('🔗 Connected to:', SUPABASE_URL);
+            return true;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to initialize Supabase:', error);
+        return false;
     }
-    return false;
 }
 
 // Wait for Supabase to load
