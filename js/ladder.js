@@ -1,11 +1,23 @@
 // Ladder Page JavaScript - Loads data directly from admin system
 
 document.addEventListener('DOMContentLoaded', async function() {
-    await loadAndDisplayLadder();
-    initializeFilters();
-    initializeChart();
-    
-    console.log('Ladder page initialized with admin data');
+    // Wait for Supabase to be available, then initialize
+    if (window.waitForSupabase) {
+        waitForSupabase(async () => {
+            await loadAndDisplayLadder();
+            initializeFilters();
+            initializeChart();
+            console.log('Ladder page initialized with admin data');
+        });
+    } else {
+        // Fallback if waitForSupabase is not available
+        setTimeout(async () => {
+            await loadAndDisplayLadder();
+            initializeFilters();
+            initializeChart();
+            console.log('Ladder page initialized with admin data');
+        }, 1000);
+    }
 });
 
 // Global variables
@@ -357,14 +369,20 @@ document.addEventListener('click', function(e) {
 });
 
 // Auto-refresh ladder every 30 seconds to pick up changes from admin
-setInterval(() => {
-    const newAdminData = loadAdminData();
-    const newPlayersCount = newAdminData.players.length;
-    const currentPlayersCount = allPlayers.length;
-    
-    if (newPlayersCount !== currentPlayersCount) {
-        loadAndDisplayLadder();
-        showNotification('Ladder updated!', 'success');
+setInterval(async () => {
+    try {
+        const newAdminData = await loadAdminData();
+        if (newAdminData && newAdminData.players && Array.isArray(newAdminData.players)) {
+            const newPlayersCount = newAdminData.players.length;
+            const currentPlayersCount = allPlayers.length;
+            
+            if (newPlayersCount !== currentPlayersCount) {
+                loadAndDisplayLadder();
+                showNotification('Ladder updated!', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Error in auto-refresh:', error);
     }
 }, 30000);
 

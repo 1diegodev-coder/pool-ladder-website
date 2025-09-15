@@ -10,10 +10,15 @@ let supabase;
 
 // Initialize Supabase client when the library loads
 function initializeSupabase() {
-    if (typeof supabase === 'undefined' && window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase initialized successfully');
-        return true;
+    if (typeof supabase === 'undefined' && window.supabase && window.supabase.createClient) {
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase initialized successfully');
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to initialize Supabase:', error);
+            return false;
+        }
     }
     return false;
 }
