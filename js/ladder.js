@@ -89,7 +89,7 @@ function renderLadderTable() {
     if (displayedPlayers.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="5" class="empty-table">
+                <td colspan="3" class="empty-table">
                     <p>No players found. Players will appear here when added through the admin panel.</p>
                 </td>
             </tr>
@@ -135,17 +135,6 @@ function createPlayerRow(player) {
                     <span class="wins">${player.wins || 0}W</span>
                     <span class="losses">${player.losses || 0}L</span>
                 </div>
-            </td>
-            <td class="winrate-cell">
-                <div class="winrate-container">
-                    <span class="winrate-value">${player.winRate}%</span>
-                    <div class="winrate-bar">
-                        <div class="winrate-fill" style="width: ${player.winRate}%"></div>
-                    </div>
-                </div>
-            </td>
-            <td class="status-cell">
-                <span class="status-badge ${statusClass}">${getStatusText(player.status)}</span>
             </td>
         </tr>
     `;

@@ -475,8 +475,8 @@ function initializeViewToggle() {
 }
 
 // Player stats modal
-function showPlayerStatsModal(playerName) {
-    const adminData = loadAdminData();
+async function showPlayerStatsModal(playerName) {
+    const adminData = await loadAdminData();
     const player = adminData.players.find(p => p.name === playerName);
     
     if (!player) {
@@ -504,8 +504,8 @@ document.addEventListener('click', function(e) {
 });
 
 // Auto-refresh matches every 30 seconds to pick up new data
-setInterval(() => {
-    const newAdminData = loadAdminData();
+setInterval(async () => {
+    const newAdminData = await loadAdminData();
     const newScheduledMatches = newAdminData.matches.filter(m => m.status === 'scheduled');
     const newCompletedMatches = newAdminData.matches.filter(m => m.status === 'completed');
     
