@@ -24,16 +24,25 @@ function initializeSupabase() {
 }
 
 // Wait for Supabase to load
-function waitForSupabase(callback, maxAttempts = 50) {
+function waitForSupabase(callback, maxAttempts = 100) {
     let attempts = 0;
     const checkSupabase = () => {
-        if (initializeSupabase()) {
-            callback();
-        } else if (attempts < maxAttempts) {
+        console.log(`🔄 Attempting to initialize Supabase (attempt ${attempts + 1}/${maxAttempts})`);
+        
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            if (initializeSupabase()) {
+                console.log('✅ Supabase ready, executing callback');
+                callback();
+                return;
+            }
+        }
+        
+        if (attempts < maxAttempts) {
             attempts++;
-            setTimeout(checkSupabase, 100);
+            setTimeout(checkSupabase, 200);
         } else {
-            console.error('❌ Failed to load Supabase client');
+            console.error('❌ Failed to load Supabase client after all attempts');
+            console.log('🔄 Falling back to localStorage');
             // Fallback to localStorage
             callback();
         }
