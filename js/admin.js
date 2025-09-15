@@ -8,20 +8,243 @@ let adminData = {
 };
 
 // Load data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadAdminData();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadAdminData();
     initializeAdminTabs();
-    renderPlayersTable();
-    renderScheduledMatches();
-    renderRecentResults();
-    renderLadderTable();
-    updateDashboardStats();
+    initializeFormHandlers();
+    await renderPlayersTable();
+    await renderScheduledMatches();
+    await renderRecentResults();
+    await renderLadderTable();
+    await updateDashboardStats();
     
     console.log('Admin panel initialized');
 });
 
+// Initialize form handlers for Enter key support
+function initializeFormHandlers() {
+    // Form handlers are now managed by HTML onsubmit attributes
+    console.log('Form handlers initialized');
+}
+
+// Edit Match Modal Functions
+function editMatch(matchId) {
+    const match = adminData.matches.find(m => m.id === matchId);
+    if (!match) {
+        alert('Match not found.');
+        return;
+    }
+    
+    const modal = document.getElementById('editMatchModal');
+    const form = document.getElementById('editMatchForm');
+    
+    if (!modal || !form) return;
+    
+    // Populate player dropdowns
+    populateEditPlayerDropdowns();
+    
+    // Handle both database format and localStorage format
+    const player1Id = match.player1_id || match.player1?.id;
+    const player2Id = match.player2_id || match.player2?.id;
+    const matchDate = match.match_date || match.date;
+    const matchTime = match.match_time || match.time;
+    const player1Score = match.player1_score || match.player1Score || '';
+    const player2Score = match.player2_score || match.player2Score || '';
+    const player1Name = match.player1_name || match.player1?.name || 'Player 1';
+    const player2Name = match.player2_name || match.player2?.name || 'Player 2';
+    
+    // Fill form with current match data
+    form.querySelector('select[name="player1"]').value = player1Id;
+    form.querySelector('select[name="player2"]').value = player2Id;
+    form.querySelector('input[name="matchDate"]').value = matchDate;
+    form.querySelector('input[name="matchTime"]').value = matchTime;
+    form.querySelector('input[name="matchId"]').value = matchId;
+    form.querySelector('input[name="matchStatus"]').value = match.status;
+    
+    // Show scores section if match is completed
+    const scoreSection = document.getElementById('scoreSection');
+    const player1ScoreInput = form.querySelector('input[name="player1Score"]');
+    const player2ScoreInput = form.querySelector('input[name="player2Score"]');
+    const player1ScoreLabel = document.getElementById('player1ScoreLabel');
+    const player2ScoreLabel = document.getElementById('player2ScoreLabel');
+    
+    if (match.status === 'completed') {
+        scoreSection.style.display = 'block';
+        player1ScoreInput.value = player1Score;
+        player2ScoreInput.value = player2Score;
+        player1ScoreLabel.textContent = `${player1Name} Score`;
+        player2ScoreLabel.textContent = `${player2Name} Score`;
+    } else {
+        scoreSection.style.display = 'none';
+        player1ScoreInput.value = '';
+        player2ScoreInput.value = '';
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function closeEditMatchModal() {
+    const modal = document.getElementById('editMatchModal');
+    if (modal) {
+        modal.style.display = 'none';
+        const form = document.getElementById('editMatchForm');
+        if (form) form.reset();
+    }
+}
+
+function populateEditPlayerDropdowns() {
+    const player1Select = document.querySelector('#editMatchModal select[name="player1"]');
+    const player2Select = document.querySelector('#editMatchModal select[name="player2"]');
+    
+    if (!player1Select || !player2Select) return;
+    
+    // Clear existing options except first
+    player1Select.innerHTML = '<option value="">Select Player 1</option>';
+    player2Select.innerHTML = '<option value="">Select Player 2</option>';
+    
+    // Add player options
+    adminData.players.forEach(player => {
+        const option1 = new Option(player.name, player.id);
+        const option2 = new Option(player.name, player.id);
+        player1Select.add(option1);
+        player2Select.add(option2);
+    });
+}
+
+async function saveMatchEdit() {
+    const form = document.getElementById('editMatchForm');
+    const formData = new FormData(form);
+    
+    const matchId = parseInt(formData.get('matchId'));
+    const player1Id = parseInt(formData.get('player1'));
+    const player2Id = parseInt(formData.get('player2'));
+    const matchDate = formData.get('matchDate');
+    const matchTime = formData.get('matchTime');
+    const matchStatus = formData.get('matchStatus');
+    const player1Score = formData.get('player1Score');
+    const player2Score = formData.get('player2Score');
+    
+    // Validation
+    if (!player1Id || !player2Id || !matchDate || !matchTime) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    if (player1Id === player2Id) {
+        alert('Please select different players for the match.');
+        return;
+    }
+    
+    const player1 = adminData.players.find(p => p.id === player1Id);
+    const player2 = adminData.players.find(p => p.id === player2Id);
+    
+    if (!player1 || !player2) {
+        alert('Selected players not found.');
+        return;
+    }
+    
+    try {
+        // Prepare update data
+        const updateData = {
+            player1_id: player1Id,
+            player1_name: player1.name,
+            player2_id: player2Id,
+            player2_name: player2.name,
+            match_date: matchDate,
+            match_time: matchTime
+        };
+        
+        // If match is completed and scores are provided, update scores too
+        if (matchStatus === 'completed' && player1Score && player2Score) {
+            const score1 = parseInt(player1Score);
+            const score2 = parseInt(player2Score);
+            
+            if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
+                alert('Please enter valid scores (numbers 0 or higher).');
+                return;
+            }
+            
+            if (score1 === score2) {
+                alert('Match cannot end in a tie. Please enter different scores.');
+                return;
+            }
+            
+            // Determine winner
+            const winnerId = score1 > score2 ? player1Id : player2Id;
+            const winnerName = score1 > score2 ? player1.name : player2.name;
+            const loserId = score1 > score2 ? player2Id : player1Id;
+            const loserName = score1 > score2 ? player2.name : player1.name;
+            
+            updateData.player1_score = score1;
+            updateData.player2_score = score2;
+            updateData.winner_id = winnerId;
+            updateData.winner_name = winnerName;
+            updateData.loser_id = loserId;
+            updateData.loser_name = loserName;
+        }
+        
+        // Update in database
+        if (window.poolDB) {
+            await poolDB.updateMatch(matchId, updateData);
+        } else {
+            // Fallback to localStorage
+            const match = adminData.matches.find(m => m.id === matchId);
+            if (match) {
+                Object.assign(match, {
+                    player1: { id: player1Id, name: player1.name },
+                    player2: { id: player2Id, name: player2.name },
+                    date: matchDate,
+                    time: matchTime,
+                    ...(matchStatus === 'completed' && player1Score && player2Score ? {
+                        player1Score: parseInt(player1Score),
+                        player2Score: parseInt(player2Score)
+                    } : {})
+                });
+                saveAdminData();
+            }
+        }
+        
+        // Refresh data and update display
+        await loadAdminData();
+        await renderScheduledMatches();
+        await renderRecentResults();
+        await updateDashboardStats();
+        
+        // Close modal
+        closeEditMatchModal();
+        
+        alert('Match updated successfully!');
+    } catch (error) {
+        console.error('Error updating match:', error);
+        alert('Error updating match. Please try again.');
+    }
+}
+
 // Data persistence
-function loadAdminData() {
+async function loadAdminData() {
+    if (window.poolDB) {
+        // Load from Supabase database
+        try {
+            const players = await poolDB.getAllPlayers();
+            const matches = await poolDB.getAllMatches();
+            adminData.players = players || [];
+            adminData.matches = matches || [];
+            console.log('✅ Loaded data from database:', { players: players.length, matches: matches.length });
+        } catch (error) {
+            console.error('Error loading from database, falling back to localStorage:', error);
+            loadFromLocalStorage();
+        }
+    } else {
+        // Wait for database to initialize
+        waitForSupabase(() => {
+            loadAdminData();
+        });
+        // Fallback to localStorage for now
+        loadFromLocalStorage();
+    }
+}
+
+function loadFromLocalStorage() {
     const savedData = localStorage.getItem('poolLadderAdminData');
     if (savedData) {
         try {
@@ -87,7 +310,7 @@ function closeAddPlayerModal() {
     }
 }
 
-function addNewPlayer() {
+async function addNewPlayer() {
     const form = document.getElementById('addPlayerForm');
     const nameInput = form.querySelector('input[name="playerName"]');
     const playerName = nameInput.value.trim();
@@ -103,37 +326,54 @@ function addNewPlayer() {
         return;
     }
     
-    // Create new player
-    const newPlayer = {
-        id: Date.now(),
-        name: playerName,
-        rank: adminData.players.length + 1,
-        wins: 0,
-        losses: 0,
-        status: 'active',
-        created: new Date().toISOString(),
-        lastActive: new Date().toISOString()
-    };
-    
-    // Add to players array
-    adminData.players.push(newPlayer);
-    
-    // Save data
-    saveAdminData();
-    
-    // Update display
-    renderPlayersTable();
-    renderLadderTable();
-    updateDashboardStats();
-    
-    // Close modal
-    closeAddPlayerModal();
-    
-    alert(`Player "${playerName}" added successfully!`);
+    try {
+        // Add to database
+        const newPlayerData = {
+            name: playerName,
+            wins: 0,
+            losses: 0,
+            status: 'active'
+        };
+        
+        let addedPlayer;
+        if (window.poolDB) {
+            addedPlayer = await poolDB.addPlayer(newPlayerData);
+        } else {
+            // Fallback to localStorage
+            addedPlayer = {
+                id: Date.now(),
+                ...newPlayerData,
+                rank: adminData.players.length + 1,
+                created: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            };
+            adminData.players.push(addedPlayer);
+            saveAdminData();
+        }
+        
+        // Update local data
+        if (addedPlayer) {
+            // Refresh data from database
+            await loadAdminData();
+            
+            // Update display
+            await renderPlayersTable();
+            await renderLadderTable();
+            await updateDashboardStats();
+            
+            // Close modal
+            closeAddPlayerModal();
+            
+            alert(`Player "${playerName}" added successfully!`);
+        }
+    } catch (error) {
+        console.error('Error adding player:', error);
+        alert('Error adding player. Please try again.');
+    }
 }
 
 // Render players list
-function renderPlayersTable() {
+async function renderPlayersTable() {
     const playersList = document.querySelector('#playersList');
     if (!playersList) return;
     
@@ -161,25 +401,38 @@ function renderPlayersTable() {
 }
 
 // Remove player function
-function removePlayer(playerId) {
+async function removePlayer(playerId) {
     if (confirm('Are you sure you want to remove this player?')) {
-        adminData.players = adminData.players.filter(player => player.id !== playerId);
-        
-        // Recalculate ranks
-        adminData.players.forEach((player, index) => {
-            player.rank = index + 1;
-        });
-        
-        saveAdminData();
-        renderPlayersTable();
-        updateDashboardStats();
-        
-        alert('Player removed successfully!');
+        try {
+            if (window.poolDB) {
+                await poolDB.deletePlayer(playerId);
+            } else {
+                // Fallback to localStorage
+                adminData.players = adminData.players.filter(player => player.id !== playerId);
+                
+                // Recalculate ranks
+                adminData.players.forEach((player, index) => {
+                    player.rank = index + 1;
+                });
+                
+                saveAdminData();
+            }
+            
+            // Refresh data and update display
+            await loadAdminData();
+            await renderPlayersTable();
+            await updateDashboardStats();
+            
+            alert('Player removed successfully!');
+        } catch (error) {
+            console.error('Error removing player:', error);
+            alert('Error removing player. Please try again.');
+        }
     }
 }
 
 // Update dashboard stats
-function updateDashboardStats() {
+async function updateDashboardStats() {
     const totalPlayersEl = document.querySelector('.admin-stats .quick-stat:nth-child(1) .stat-number');
     const scheduledMatchesEl = document.querySelector('.admin-stats .quick-stat:nth-child(2) .stat-number');
     const completedMatchesEl = document.querySelector('.admin-stats .quick-stat:nth-child(3) .stat-number');
@@ -384,7 +637,7 @@ function populatePlayerDropdowns() {
     });
 }
 
-function scheduleMatch() {
+async function scheduleMatch() {
     const form = document.getElementById('scheduleMatchForm');
     const formData = new FormData(form);
     
@@ -412,38 +665,57 @@ function scheduleMatch() {
         return;
     }
     
-    // Create new match
-    const newMatch = {
-        id: Date.now(),
-        player1: {
-            id: player1.id,
-            name: player1.name
-        },
-        player2: {
-            id: player2.id,
-            name: player2.name
-        },
-        date: matchDate,
-        time: matchTime,
-        status: 'scheduled',
-        created: new Date().toISOString()
-    };
-    
-    // Add to matches array
-    adminData.matches.push(newMatch);
-    saveAdminData();
-    
-    // Update display
-    renderScheduledMatches();
-    updateDashboardStats();
-    
-    // Close modal
-    closeScheduleMatchModal();
-    
-    alert(`Match scheduled: ${player1.name} vs ${player2.name} on ${matchDate} at ${matchTime}`);
+    try {
+        // Create new match
+        const newMatchData = {
+            player1_id: player1.id,
+            player1_name: player1.name,
+            player2_id: player2.id,
+            player2_name: player2.name,
+            match_date: matchDate,
+            match_time: matchTime,
+            status: 'scheduled'
+        };
+        
+        if (window.poolDB) {
+            await poolDB.addMatch(newMatchData);
+        } else {
+            // Fallback to localStorage
+            const newMatch = {
+                id: Date.now(),
+                player1: {
+                    id: player1.id,
+                    name: player1.name
+                },
+                player2: {
+                    id: player2.id,
+                    name: player2.name
+                },
+                date: matchDate,
+                time: matchTime,
+                status: 'scheduled',
+                created: new Date().toISOString()
+            };
+            adminData.matches.push(newMatch);
+            saveAdminData();
+        }
+        
+        // Refresh data and update display
+        await loadAdminData();
+        await renderScheduledMatches();
+        await updateDashboardStats();
+        
+        // Close modal
+        closeScheduleMatchModal();
+        
+        alert(`Match scheduled: ${player1.name} vs ${player2.name} on ${matchDate} at ${matchTime}`);
+    } catch (error) {
+        console.error('Error scheduling match:', error);
+        alert('Error scheduling match. Please try again.');
+    }
 }
 
-function renderScheduledMatches() {
+async function renderScheduledMatches() {
     const scheduledSection = document.querySelector('.matches-section:first-child .admin-match-cards');
     if (!scheduledSection) return;
     
@@ -458,23 +730,32 @@ function renderScheduledMatches() {
         return;
     }
     
-    scheduledSection.innerHTML = scheduledMatches.map(match => `
-        <div class="match-card">
-            <div class="match-header">
-                <span class="match-date">${new Date(match.date).toLocaleDateString()}</span>
-                <span class="match-time">${match.time}</span>
+    scheduledSection.innerHTML = scheduledMatches.map(match => {
+        // Handle both database format and localStorage format
+        const player1Name = match.player1_name || match.player1?.name || 'Unknown Player';
+        const player2Name = match.player2_name || match.player2?.name || 'Unknown Player';
+        const matchDate = match.match_date || match.date;
+        const matchTime = match.match_time || match.time;
+        
+        return `
+            <div class="match-card">
+                <div class="match-header">
+                    <span class="match-date">${new Date(matchDate).toLocaleDateString()}</span>
+                    <span class="match-time">${matchTime}</span>
+                </div>
+                <div class="match-players">
+                    <span class="player">${player1Name}</span>
+                    <span class="vs">vs</span>
+                    <span class="player">${player2Name}</span>
+                </div>
+                <div class="match-actions">
+                    <button class="btn btn-sm btn-outline" onclick="editMatch(${match.id})">Edit</button>
+                    <button class="btn btn-sm btn-outline" onclick="recordMatchResult(${match.id})">Record Result</button>
+                    <button class="btn btn-sm btn-danger" onclick="cancelMatch(${match.id})">Cancel</button>
+                </div>
             </div>
-            <div class="match-players">
-                <span class="player">${match.player1.name}</span>
-                <span class="vs">vs</span>
-                <span class="player">${match.player2.name}</span>
-            </div>
-            <div class="match-actions">
-                <button class="btn btn-sm btn-outline" onclick="recordMatchResult(${match.id})">Record Result</button>
-                <button class="btn btn-sm btn-danger" onclick="cancelMatch(${match.id})">Cancel</button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function cancelMatch(matchId) {
@@ -487,15 +768,21 @@ function cancelMatch(matchId) {
     }
 }
 
-function recordMatchResult(matchId) {
+async function recordMatchResult(matchId) {
     const match = adminData.matches.find(m => m.id === matchId);
     if (!match) return;
     
+    // Handle both database format and localStorage format
+    const player1Name = match.player1_name || match.player1?.name || 'Player 1';
+    const player2Name = match.player2_name || match.player2?.name || 'Player 2';
+    const player1Id = match.player1_id || match.player1?.id;
+    const player2Id = match.player2_id || match.player2?.id;
+    
     // Get scores from both players
-    const player1Score = prompt(`Enter score for ${match.player1.name}:`, '0');
+    const player1Score = prompt(`Enter score for ${player1Name}:`, '0');
     if (player1Score === null) return; // User cancelled
     
-    const player2Score = prompt(`Enter score for ${match.player2.name}:`, '0');
+    const player2Score = prompt(`Enter score for ${player2Name}:`, '0');
     if (player2Score === null) return; // User cancelled
     
     // Validate scores
@@ -512,42 +799,87 @@ function recordMatchResult(matchId) {
         return;
     }
     
-    // Determine winner
-    const winner = score1 > score2 ? match.player1 : match.player2;
-    const loser = score1 > score2 ? match.player2 : match.player1;
-    
-    // Update match data
-    match.status = 'completed';
-    match.player1Score = score1;
-    match.player2Score = score2;
-    match.winner = winner;
-    match.loser = loser;
-    match.completedDate = new Date().toISOString();
-    
-    // Update player stats
-    updatePlayerStats(winner.id, loser.id);
-    
-    saveAdminData();
-    renderScheduledMatches();
-    renderRecentResults();
-    updateDashboardStats();
-    
-    alert(`Match result recorded:\n${match.player1.name}: ${score1}\n${match.player2.name}: ${score2}\n\nWinner: ${winner.name}`);
+    try {
+        // Determine winner and loser
+        const winnerId = score1 > score2 ? player1Id : player2Id;
+        const winnerName = score1 > score2 ? player1Name : player2Name;
+        const loserId = score1 > score2 ? player2Id : player1Id;
+        const loserName = score1 > score2 ? player2Name : player1Name;
+        
+        // Update match in database
+        const matchUpdates = {
+            status: 'completed',
+            player1_score: score1,
+            player2_score: score2,
+            winner_id: winnerId,
+            winner_name: winnerName,
+            loser_id: loserId,
+            loser_name: loserName,
+            completed_at: new Date().toISOString()
+        };
+        
+        if (window.poolDB) {
+            await poolDB.updateMatch(matchId, matchUpdates);
+        } else {
+            // Fallback to localStorage
+            match.status = 'completed';
+            match.player1Score = score1;
+            match.player2Score = score2;
+            match.winner = winner;
+            match.loser = loser;
+            match.completedDate = new Date().toISOString();
+            saveAdminData();
+        }
+        
+        // Update player stats
+        await updatePlayerStats(winnerId, loserId);
+        
+        // Refresh data and update display
+        await loadAdminData();
+        await renderScheduledMatches();
+        await renderRecentResults();
+        await updateDashboardStats();
+        
+        alert(`Match result recorded:\n${player1Name}: ${score1}\n${player2Name}: ${score2}\n\nWinner: ${winnerName}`);
+    } catch (error) {
+        console.error('Error recording match result:', error);
+        alert('Error recording match result. Please try again.');
+    }
 }
 
 // Update player statistics after match completion
-function updatePlayerStats(winnerId, loserId) {
+async function updatePlayerStats(winnerId, loserId) {
     const winner = adminData.players.find(p => p.id === winnerId);
     const loser = adminData.players.find(p => p.id === loserId);
     
     if (winner && loser) {
-        // Update win/loss records
-        winner.wins = (winner.wins || 0) + 1;
-        loser.losses = (loser.losses || 0) + 1;
-        
-        // Update last active
-        winner.lastActive = new Date().toISOString();
-        loser.lastActive = new Date().toISOString();
+        try {
+            // Update win/loss records
+            const winnerUpdates = {
+                wins: (winner.wins || 0) + 1,
+                last_active: new Date().toISOString()
+            };
+            
+            const loserUpdates = {
+                losses: (loser.losses || 0) + 1,
+                last_active: new Date().toISOString()
+            };
+            
+            if (window.poolDB) {
+                await poolDB.updatePlayer(winnerId, winnerUpdates);
+                await poolDB.updatePlayer(loserId, loserUpdates);
+            } else {
+                // Fallback to localStorage
+                winner.wins = winnerUpdates.wins;
+                winner.lastActive = winnerUpdates.last_active;
+                loser.losses = loserUpdates.losses;
+                loser.lastActive = loserUpdates.last_active;
+                saveAdminData();
+            }
+        } catch (error) {
+            console.error('Error updating player stats:', error);
+            throw error;
+        }
     }
 }
 
@@ -572,13 +904,17 @@ function recalculateRanks() {
 }
 
 // Render recent results section
-function renderRecentResults() {
+async function renderRecentResults() {
     const recentSection = document.querySelector('.matches-section:last-child .admin-match-cards');
     if (!recentSection) return;
     
     const completedMatches = adminData.matches
         .filter(match => match.status === 'completed')
-        .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate)) // Most recent first
+        .sort((a, b) => {
+            const dateA = new Date(a.completed_at || a.completedDate);
+            const dateB = new Date(b.completed_at || b.completedDate);
+            return dateB - dateA; // Most recent first
+        })
         .slice(0, 10); // Show only last 10 matches
     
     if (completedMatches.length === 0) {
@@ -590,29 +926,44 @@ function renderRecentResults() {
         return;
     }
     
-    recentSection.innerHTML = completedMatches.map(match => `
-        <div class="result-card">
-            <div class="result-header">
-                <span class="result-date">${new Date(match.completedDate).toLocaleDateString()}</span>
-                <span class="result-time">${new Date(match.completedDate).toLocaleTimeString()}</span>
-            </div>
-            <div class="result-score">
-                <div class="player-result ${match.winner.id === match.player1.id ? 'winner' : ''}">
-                    <span class="player-name">${match.player1.name}</span>
-                    <span class="player-score">${match.player1Score}</span>
+    recentSection.innerHTML = completedMatches.map(match => {
+        // Handle both database format and localStorage format
+        const completedDate = match.completed_at || match.completedDate;
+        const player1Name = match.player1_name || match.player1?.name || 'Player 1';
+        const player2Name = match.player2_name || match.player2?.name || 'Player 2';
+        const player1Score = match.player1_score || match.player1Score || 0;
+        const player2Score = match.player2_score || match.player2Score || 0;
+        const winnerId = match.winner_id || match.winner?.id;
+        const player1Id = match.player1_id || match.player1?.id;
+        const player2Id = match.player2_id || match.player2?.id;
+        
+        return `
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-date">${new Date(completedDate).toLocaleDateString()}</span>
+                    <span class="result-time">${new Date(completedDate).toLocaleTimeString()}</span>
                 </div>
-                <div class="vs-separator">vs</div>
-                <div class="player-result ${match.winner.id === match.player2.id ? 'winner' : ''}">
-                    <span class="player-name">${match.player2.name}</span>
-                    <span class="player-score">${match.player2Score}</span>
+                <div class="result-score">
+                    <div class="player-result ${winnerId === player1Id ? 'winner' : ''}">
+                        <span class="player-name">${player1Name}</span>
+                        <span class="player-score">${player1Score}</span>
+                    </div>
+                    <div class="vs-separator">vs</div>
+                    <div class="player-result ${winnerId === player2Id ? 'winner' : ''}">
+                        <span class="player-name">${player2Name}</span>
+                        <span class="player-score">${player2Score}</span>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-sm btn-outline" onclick="editMatch(${match.id})">Edit</button>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Render ladder table with drag-and-drop functionality
-function renderLadderTable() {
+async function renderLadderTable() {
     const ladderTableBody = document.getElementById('ladderTableBody');
     if (!ladderTableBody) return;
     
@@ -1207,3 +1558,15 @@ adminStyles.textContent = `
     }
 `;
 document.head.appendChild(adminStyles);
+
+
+// Logout function
+function logout() {
+    // Clear authentication
+    localStorage.removeItem('admin_authenticated');
+    localStorage.removeItem('admin_auth_timestamp');
+    localStorage.removeItem('admin_user');
+    
+    // Redirect to home page
+    window.location.href = '../index.html';
+}

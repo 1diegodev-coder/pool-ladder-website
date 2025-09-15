@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - The Pool Ladder</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .offline-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-xl);
+            background: linear-gradient(135deg, var(--obsidian-black) 0%, var(--deep-charcoal) 100%);
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.7;
+        }
+        
+        .offline-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--electric-cyan);
+            margin-bottom: var(--spacing-md);
+            font-weight: 900;
+        }
+        
+        .offline-message {
+            color: var(--chrome-silver);
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-xl);
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        .offline-features {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--electric-cyan);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            max-width: 400px;
+        }
+        
+        .offline-features h3 {
+            color: var(--electric-cyan);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.3rem;
+        }
+        
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        
+        .offline-features li {
+            color: var(--chrome-silver);
+            margin-bottom: var(--spacing-sm);
+            padding-left: var(--spacing-lg);
+            position: relative;
+        }
+        
+        .offline-features li::before {
+            content: "✓";
+            color: var(--neon-green);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .retry-btn {
+            background: var(--electric-cyan);
+            color: var(--obsidian-black);
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .retry-btn:hover {
+            background: var(--neon-green);
+            transform: translateY(-2px);
+        }
+        
+        .connection-status {
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .connection-status.offline {
+            background: rgba(255, 69, 0, 0.2);
+            color: #ff4500;
+            border: 1px solid #ff4500;
+        }
+        
+        .connection-status.online {
+            background: rgba(0, 255, 127, 0.2);
+            color: #00ff7f;
+            border: 1px solid #00ff7f;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">🎱</div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        
+        <p class="offline-message">
+            No internet connection detected. Don't worry - you can still view cached data and the app will sync when you're back online.
+        </p>
+        
+        <div class="offline-features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View current ladder rankings</li>
+                <li>Check recent match results</li>
+                <li>Browse player statistics</li>
+                <li>View scheduled matches</li>
+            </ul>
+        </div>
+        
+        <button class="retry-btn" onclick="retryConnection()">
+            Try Again
+        </button>
+        
+        <div id="connectionStatus" class="connection-status offline">
+            📡 Offline - No internet connection
+        </div>
+    </div>
+
+    <script>
+        // Monitor online/offline status
+        function updateConnectionStatus() {
+            const status = document.getElementById('connectionStatus');
+            if (navigator.onLine) {
+                status.textContent = '🌐 Online - Connection restored!';
+                status.className = 'connection-status online';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                status.textContent = '📡 Offline - No internet connection';
+                status.className = 'connection-status offline';
+            }
+        }
+        
+        function retryConnection() {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            } else {
+                // Attempt to fetch a small resource to test connectivity
+                fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        window.location.href = '/';
+                    })
+                    .catch(() => {
+                        alert('Still no connection. Please check your internet and try again.');
+                    });
+            }
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Check connection status on load
+        updateConnectionStatus();
+        
+        // Auto-retry every 30 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                updateConnectionStatus();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

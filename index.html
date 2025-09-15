@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pool Ladder - Competitive 8-Ball Tournament</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Premier competitive 8-ball pool league management system">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pool Ladder">
+    <meta name="msapplication-TileColor" content="#00d4ff">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.svg">
+    <link rel="mask-icon" href="/icons/icon-192x192.svg" color="#00d4ff">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
@@ -33,8 +51,8 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1 class="hero-title">DOMINATE THE FELT</h1>
-                    <p class="hero-subtitle">Competitive 8-Ball Pool Ladder - International Rules</p>
+                    <h1 class="hero-title">THE POOL LADDER</h1>
+                    <p class="hero-subtitle">Premier Competitive 8-Ball League - International Tournament Rules</p>
                 </div>
             </div>
         </div>
@@ -62,10 +80,10 @@
     <section class="cta">
         <div class="container">
             <div class="cta-content">
-                <h2>READY TO CLIMB THE LADDER?</h2>
-                <p>Join our competitive 8-ball pool league and prove you have what it takes to reach the top. International rules, serious competition.</p>
+                <h2>JOIN THE PREMIER LEAGUE</h2>
+                <p>Experience competitive 8-ball pool at its finest. Our league features international tournament rules, skilled players, and professional tournament management.</p>
                 <div class="cta-buttons">
-                    <button class="btn btn-primary btn-large" onclick="openJoinModal()">JOIN THE COMPETITION</button>
+                    <button class="btn btn-primary btn-large" onclick="openJoinModal()">APPLY TO JOIN</button>
                     <a href="pages/rules.html" class="btn btn-outline">View Rules & Format</a>
                 </div>
             </div>
@@ -101,11 +119,11 @@
     <div class="modal" id="joinModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Join The Competition</h3>
+                <h3>League Application</h3>
                 <button class="modal-close" onclick="closeJoinModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="join-intro">Ready to dominate the felt? Fill out the form below and we'll get back to you with league details!</p>
+                <p class="join-intro">Submit your application to join our competitive 8-ball pool league. We'll review your information and contact you with next steps.</p>
                 <form id="joinForm" class="join-form">
                     <div class="form-group">
                         <label>Full Name *</label>
@@ -126,8 +144,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Why do you want to join? (Optional)</label>
-                        <textarea name="message" class="form-textarea" rows="3" placeholder="Tell us what motivates you to compete..."></textarea>
+                        <label>Additional Information (Optional)</label>
+                        <textarea name="message" class="form-textarea" rows="3" placeholder="Share any relevant pool experience or questions about the league..."></textarea>
                     </div>
                     <div id="joinFormStatus" class="form-status" style="display: none;"></div>
                 </form>
@@ -142,6 +160,115 @@
         </div>
     </div>
 
+    <!-- EmailJS for automatic email sending -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
     <script src="js/main.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('🎱 PWA: Service Worker registered successfully');
+                        
+                        // Listen for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ PWA: Service Worker registration failed:', error);
+                    });
+            });
+        }
+        
+        // Listen for messages from service worker
+        navigator.serviceWorker?.addEventListener('message', event => {
+            if (event.data.type === 'SYNC_DATA') {
+                console.log('📡 PWA: ' + event.data.message);
+                // Trigger data refresh if needed
+                if (window.loadAndDisplayLadder) {
+                    window.loadAndDisplayLadder();
+                }
+            }
+        });
+        
+        // Add to home screen prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button or banner
+            showInstallPrompt();
+        });
+        
+        function showInstallPrompt() {
+            // Create install banner
+            const installBanner = document.createElement('div');
+            installBanner.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #00d4ff, #0a0a0a);
+                color: white;
+                padding: 12px;
+                text-align: center;
+                z-index: 10000;
+                font-family: var(--font-primary);
+                transform: translateY(-100%);
+                transition: transform 0.3s ease;
+            `;
+            installBanner.innerHTML = `
+                <span>📱 Install Pool Ladder app for quick access!</span>
+                <button id="installBtn" style="margin-left: 10px; background: white; color: #0a0a0a; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Install</button>
+                <button id="dismissBtn" style="margin-left: 10px; background: transparent; color: white; border: 1px solid white; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Maybe Later</button>
+            `;
+            
+            document.body.appendChild(installBanner);
+            
+            // Animate in
+            setTimeout(() => {
+                installBanner.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Install button click
+            installBanner.querySelector('#installBtn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('📱 PWA: Install prompt result:', outcome);
+                    deferredPrompt = null;
+                }
+                installBanner.remove();
+            });
+            
+            // Dismiss button click
+            installBanner.querySelector('#dismissBtn').addEventListener('click', () => {
+                installBanner.style.transform = 'translateY(-100%)';
+                setTimeout(() => installBanner.remove(), 300);
+            });
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (installBanner.parentElement) {
+                    installBanner.style.transform = 'translateY(-100%)';
+                    setTimeout(() => installBanner.remove(), 300);
+                }
+            }, 10000);
+        }
+    </script>
 </body>
 </html>

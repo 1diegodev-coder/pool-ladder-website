@@ -1,7 +1,7 @@
 // Ladder Page JavaScript - Loads data directly from admin system
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadAndDisplayLadder();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadAndDisplayLadder();
     initializeFilters();
     initializeChart();
     
@@ -12,8 +12,19 @@ document.addEventListener('DOMContentLoaded', function() {
 let allPlayers = [];
 let displayedPlayers = [];
 
-// Load admin data from localStorage
-function loadAdminData() {
+// Load admin data from database or localStorage
+async function loadAdminData() {
+    if (window.poolDB) {
+        try {
+            const players = await poolDB.getAllPlayers();
+            const matches = await poolDB.getAllMatches();
+            return { players: players || [], matches: matches || [] };
+        } catch (error) {
+            console.error('Error loading from database, falling back to localStorage:', error);
+        }
+    }
+    
+    // Fallback to localStorage
     try {
         const savedData = localStorage.getItem('poolLadderAdminData');
         if (savedData) {
@@ -26,8 +37,8 @@ function loadAdminData() {
 }
 
 // Load and display ladder data
-function loadAndDisplayLadder() {
-    const adminData = loadAdminData();
+async function loadAndDisplayLadder() {
+    const adminData = await loadAdminData();
     allPlayers = adminData.players
         .sort((a, b) => a.rank - b.rank) // Sort by rank
         .map(player => ({

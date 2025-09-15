@@ -4,18 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - The Pool Ladder</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Admin panel for Pool Ladder tournament management">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pool Ladder Admin">
+    <meta name="msapplication-TileColor" content="#00d4ff">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="../icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" href="../icons/icon-192x192.svg">
+    <link rel="mask-icon" href="../icons/icon-192x192.svg" color="#00d4ff">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../manifest.json">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script>
-        // Admin panel requires password every time
+        // Admin panel authentication check
         let isAuthenticated = false;
+        
+        function checkAuthentication() {
+            // Check if user logged in via login page
+            const authenticated = localStorage.getItem('admin_authenticated') === 'true';
+            const authTimestamp = localStorage.getItem('admin_auth_timestamp');
+            
+            if (authenticated && authTimestamp) {
+                const now = new Date().getTime();
+                const authTime = parseInt(authTimestamp);
+                const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
+                
+                if (now - authTime < sessionDuration) {
+                    // Valid session
+                    isAuthenticated = true;
+                    document.body.style.display = 'block';
+                    return true;
+                }
+            }
+            
+            // No valid session, try password prompt for direct access
+            return promptForPassword();
+        }
         
         function promptForPassword() {
             const password = prompt('Enter admin password:');
             if (password === 'poolladder2025') {
                 isAuthenticated = true;
                 document.body.style.display = 'block';
+                // Set authentication for consistency
+                const timestamp = new Date().getTime();
+                localStorage.setItem('admin_authenticated', 'true');
+                localStorage.setItem('admin_auth_timestamp', timestamp.toString());
+                localStorage.setItem('admin_user', 'admin');
                 return true;
             } else if (password !== null) {
                 alert('Incorrect password. Access denied.');
@@ -30,9 +74,9 @@
         // Hide body until authenticated
         document.body.style.display = 'none';
         
-        // Prompt for password on load
+        // Check authentication on load
         document.addEventListener('DOMContentLoaded', function() {
-            if (!promptForPassword()) {
+            if (!checkAuthentication()) {
                 return;
             }
         });
@@ -238,7 +282,7 @@
                 <button class="modal-close" onclick="closeAddPlayerModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form class="admin-form" id="addPlayerForm">
+                <form class="admin-form" id="addPlayerForm" onsubmit="event.preventDefault(); addNewPlayer();">
                     <div class="form-group">
                         <label>Player Name *</label>
                         <input type="text" name="playerName" class="form-input" placeholder="Enter player name" required>
@@ -247,7 +291,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeAddPlayerModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="addNewPlayer()">Add Player</button>
+                <button type="submit" form="addPlayerForm" class="btn btn-primary">Add Player</button>
             </div>
         </div>
     </div>
@@ -295,7 +339,7 @@
                 <button class="modal-close" onclick="closeScheduleMatchModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form class="admin-form" id="scheduleMatchForm">
+                <form class="admin-form" id="scheduleMatchForm" onsubmit="event.preventDefault(); scheduleMatch();">
                     <div class="form-group">
                         <label>Player 1 *</label>
                         <select name="player1" class="form-input" required>
@@ -320,11 +364,91 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeScheduleMatchModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="scheduleMatch()">Schedule Match</button>
+                <button type="submit" form="scheduleMatchForm" class="btn btn-primary">Schedule Match</button>
             </div>
         </div>
     </div>
 
+    <!-- Edit Match Modal -->
+    <div class="modal" id="editMatchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Match</h3>
+                <button class="modal-close" onclick="closeEditMatchModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="admin-form" id="editMatchForm" onsubmit="event.preventDefault(); saveMatchEdit();">
+                    <div class="form-group">
+                        <label>Player 1 *</label>
+                        <select name="player1" class="form-input" required>
+                            <option value="">Select Player 1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Player 2 *</label>
+                        <select name="player2" class="form-input" required>
+                            <option value="">Select Player 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Match Date *</label>
+                        <input type="date" name="matchDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Match Time *</label>
+                        <input type="time" name="matchTime" class="form-input" required>
+                    </div>
+                    <div class="form-group" id="scoreSection" style="display: none;">
+                        <h4>Match Scores</h4>
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="flex: 1;">
+                                <label id="player1ScoreLabel">Player 1 Score</label>
+                                <input type="number" name="player1Score" class="form-input" min="0">
+                            </div>
+                            <div style="flex: 1;">
+                                <label id="player2ScoreLabel">Player 2 Score</label>
+                                <input type="number" name="player2Score" class="form-input" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="matchId" id="editMatchId">
+                    <input type="hidden" name="matchStatus" id="editMatchStatus">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeEditMatchModal()">Cancel</button>
+                <button type="submit" form="editMatchForm" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Supabase CDN -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Database configuration -->
+    <script src="../js/supabase-config.js"></script>
+    
+    <!-- Sample data for demo -->
+    <script src="../sample-data.js"></script>
+    
+    <!-- Main admin script -->
     <script src="../js/admin.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(registration => {
+                        console.log('🎱 PWA: Service Worker registered successfully');
+                    })
+                    .catch(error => {
+                        console.log('❌ PWA: Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

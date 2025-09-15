@@ -22,5 +22,13 @@
     "competition"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1diegodev-coder/pool-ladder-website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1diegodev-coder/pool-ladder-website/issues"
+  },
+  "homepage": "https://github.com/1diegodev-coder/pool-ladder-website#readme"
 }

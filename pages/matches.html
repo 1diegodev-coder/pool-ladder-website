@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matches - The Pool Ladder</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="View scheduled matches and match results">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pool Ladder">
+    <meta name="msapplication-TileColor" content="#00d4ff">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="../icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" href="../icons/icon-192x192.svg">
+    <link rel="mask-icon" href="../icons/icon-192x192.svg" color="#00d4ff">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../manifest.json">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/matches.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -134,6 +151,32 @@
         </div>
     </footer>
 
+    <!-- Supabase CDN -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Database configuration -->
+    <script src="../js/supabase-config.js"></script>
+    
+    <!-- Sample data for demo -->
+    <script src="../sample-data.js"></script>
+    
+    <!-- Main matches script -->
     <script src="../js/matches.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(registration => {
+                        console.log('🎱 PWA: Service Worker registered successfully');
+                    })
+                    .catch(error => {
+                        console.log('❌ PWA: Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

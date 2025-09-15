@@ -1,7 +1,7 @@
 // Matches Page JavaScript - Combines schedule and results functionality
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadAndDisplayMatches();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadAndDisplayMatches();
     initializeMatchTabs();
     initializeFilters();
     initializeViewToggle();
@@ -16,8 +16,19 @@ let displayedScheduledMatches = [];
 let displayedCompletedMatches = [];
 let currentTab = 'scheduled';
 
-// Load admin data from localStorage
-function loadAdminData() {
+// Load admin data from database or localStorage
+async function loadAdminData() {
+    if (window.poolDB) {
+        try {
+            const players = await poolDB.getAllPlayers();
+            const matches = await poolDB.getAllMatches();
+            return { players: players || [], matches: matches || [] };
+        } catch (error) {
+            console.error('Error loading from database, falling back to localStorage:', error);
+        }
+    }
+    
+    // Fallback to localStorage
     try {
         const savedData = localStorage.getItem('poolLadderAdminData');
         if (savedData) {
@@ -30,32 +41,51 @@ function loadAdminData() {
 }
 
 // Load and display all matches
-function loadAndDisplayMatches() {
-    const adminData = loadAdminData();
+async function loadAndDisplayMatches() {
+    const adminData = await loadAdminData();
     
     // Get scheduled matches
     allScheduledMatches = adminData.matches
         .filter(match => match.status === 'scheduled')
-        .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)); // Earliest first
+        .sort((a, b) => {
+            const dateA = a.match_date || a.date;
+            const timeA = a.match_time || a.time;
+            const dateB = b.match_date || b.date;
+            const timeB = b.match_time || b.time;
+            return new Date(dateA + ' ' + timeA) - new Date(dateB + ' ' + timeB);
+        }); // Earliest first
     
     // Get completed matches and enrich with player data
     allCompletedMatches = adminData.matches
         .filter(match => match.status === 'completed')
-        .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate)) // Most recent first
+        .sort((a, b) => {
+            const dateA = new Date(a.completed_at || a.completedDate);
+            const dateB = new Date(b.completed_at || b.completedDate);
+            return dateB - dateA; // Most recent first
+        })
         .map(match => {
-            const player1 = adminData.players.find(p => p.id === match.player1.id);
-            const player2 = adminData.players.find(p => p.id === match.player2.id);
+            // Handle both database format and localStorage format
+            const player1Id = match.player1_id || match.player1?.id;
+            const player2Id = match.player2_id || match.player2?.id;
+            const player1 = adminData.players.find(p => p.id === player1Id);
+            const player2 = adminData.players.find(p => p.id === player2Id);
             
             return {
                 ...match,
                 player1: {
-                    ...match.player1,
+                    id: player1Id,
+                    name: match.player1_name || match.player1?.name || 'Player 1',
                     rank: player1 ? player1.rank : null
                 },
                 player2: {
-                    ...match.player2,
+                    id: player2Id,
+                    name: match.player2_name || match.player2?.name || 'Player 2',
                     rank: player2 ? player2.rank : null
-                }
+                },
+                // Add compatibility fields
+                completedDate: match.completed_at || match.completedDate,
+                player1Score: match.player1_score || match.player1Score || 0,
+                player2Score: match.player2_score || match.player2Score || 0
             };
         });
     
@@ -163,7 +193,10 @@ function renderCompletedMatches() {
 
 // Create scheduled match card HTML
 function createScheduledMatchCard(match) {
-    const matchDate = new Date(match.date + ' ' + match.time);
+    // Handle both database format and localStorage format
+    const matchDateStr = match.match_date || match.date;
+    const matchTimeStr = match.match_time || match.time;
+    const matchDate = new Date(matchDateStr + ' ' + matchTimeStr);
     const formattedDate = matchDate.toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric', 
@@ -194,10 +227,10 @@ function createScheduledMatchCard(match) {
             <div class="match-players">
                 <div class="scheduled-player">
                     <div class="player-avatar-small">
-                        ${getPlayerInitials(match.player1.name)}
+                        ${getPlayerInitials(match.player1_name || match.player1?.name || 'P1')}
                     </div>
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player1.name}</div>
+                        <div class="scheduled-player-name">${match.player1_name || match.player1?.name || 'Player 1'}</div>
                         <div class="scheduled-player-rank">Challenger</div>
                     </div>
                 </div>
@@ -206,10 +239,10 @@ function createScheduledMatchCard(match) {
                 
                 <div class="scheduled-player right">
                     <div class="player-avatar-small">
-                        ${getPlayerInitials(match.player2.name)}
+                        ${getPlayerInitials(match.player2_name || match.player2?.name || 'P2')}
                     </div>
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player2.name}</div>
+                        <div class="scheduled-player-name">${match.player2_name || match.player2?.name || 'Player 2'}</div>
                         <div class="scheduled-player-rank">Opponent</div>
                     </div>
                 </div>

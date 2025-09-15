@@ -214,37 +214,129 @@ async function handleJoinFormSubmit(e) {
     setSubmitLoading(true);
     
     try {
-        // Create email content
-        const subject = `Pool Ladder Application - ${name}`;
-        const body = `Name: ${name}
+        // Prepare email data
+        const emailData = {
+            to_email: 'fasteddiespoolleague@proton.me',
+            from_name: name,
+            from_email: email,
+            subject: `Pool Ladder Application - ${name}`,
+            message: `
+New Pool Ladder Application Received:
+
+Name: ${name}
+Email: ${email}
+Experience Level: ${experience}${message ? `
+Additional Message: ${message}` : ''}
+
+Submitted: ${new Date().toLocaleString()}
+
+This application was submitted through The Pool Ladder website.
+Please contact the applicant to proceed with league registration.
+            `.trim()
+        };
+        
+        // Try to send email using EmailJS
+        const emailSent = await sendEmailViaEmailJS(emailData);
+        
+        if (emailSent) {
+            // Email sent successfully
+            showFormStatus('Application submitted successfully! You will be contacted soon about joining the league.', 'success');
+            
+            // Reset form and close modal after delay
+            setTimeout(() => {
+                form.reset();
+                closeJoinModal();
+            }, 3000);
+        } else {
+            // Fallback to mailto if EmailJS fails
+            const subject = `Pool Ladder Application - ${name}`;
+            const body = `Name: ${name}
 Email: ${email}
 Experience Level: ${experience}${message ? `
 Message: ${message}` : ''}
 
 This application was submitted through The Pool Ladder website.`;
-        
-        // Create mailto link
-        const mailtoLink = `mailto:fasteddiesladderleague@proton.me?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Open mailto link
-        window.location.href = mailtoLink;
-        
-        // Show success message
-        showFormStatus('Application submitted! Your email client should open with the application details. Please send the email to complete your application.', 'success');
-        
-        // Reset form after delay
-        setTimeout(() => {
-            closeJoinModal();
-        }, 3000);
+            
+            const mailtoLink = `mailto:fasteddiespoolleague@proton.me?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+            
+            showFormStatus('Opening your email client to complete the application. Please send the email that opens.', 'info');
+            
+            setTimeout(() => {
+                closeJoinModal();
+            }, 3000);
+        }
         
     } catch (error) {
         console.error('Form submission error:', error);
-        showFormStatus('There was an error submitting your application. Please try again or contact us directly.', 'error');
+        showFormStatus('There was an error submitting your application. Please try again or contact us directly at fasteddiespoolleague@proton.me', 'error');
     } finally {
         setSubmitLoading(false);
+    }
+}
+
+// Send email using EmailJS service
+async function sendEmailViaEmailJS(emailData) {
+    try {
+        // EmailJS configuration (you'll need to set these up)
+        const SERVICE_ID = 'service_poolladder'; // Replace with your EmailJS service ID
+        const TEMPLATE_ID = 'template_poolladder'; // Replace with your EmailJS template ID
+        const USER_ID = 'poolladder_public_key'; // Replace with your EmailJS public key
+        
+        // Check if EmailJS is loaded
+        if (typeof emailjs === 'undefined') {
+            console.log('EmailJS not loaded, falling back to mailto');
+            return false;
+        }
+        
+        // Send email via EmailJS
+        const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+            to_email: emailData.to_email,
+            from_name: emailData.from_name,
+            from_email: emailData.from_email,
+            subject: emailData.subject,
+            message: emailData.message,
+            reply_to: emailData.from_email
+        }, USER_ID);
+        
+        console.log('Email sent successfully:', response);
+        return true;
+        
+    } catch (error) {
+        console.log('EmailJS failed, falling back to mailto:', error);
+        return false;
+    }
+}
+
+// Alternative: Send email using Formspree (simpler setup)
+async function sendEmailViaFormspree(emailData) {
+    try {
+        const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'; // Replace with your Formspree form ID
+        
+        const response = await fetch(FORMSPREE_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: emailData.from_name,
+                email: emailData.from_email,
+                subject: emailData.subject,
+                message: emailData.message
+            })
+        });
+        
+        if (response.ok) {
+            console.log('Email sent via Formspree successfully');
+            return true;
+        } else {
+            console.log('Formspree failed:', response.status);
+            return false;
+        }
+        
+    } catch (error) {
+        console.log('Formspree error:', error);
+        return false;
     }
 }
 
