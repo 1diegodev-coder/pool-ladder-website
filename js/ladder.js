@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         waitForSupabase(async () => {
             await loadAndDisplayLadder();
             initializeFilters();
-            ();
             console.log('Ladder page initialized with admin data');
         });
     } else {
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         setTimeout(async () => {
             await loadAndDisplayLadder();
             initializeFilters();
-            ();
             console.log('Ladder page initialized with admin data');
         }, 1000);
     }
