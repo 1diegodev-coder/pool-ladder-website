@@ -1291,7 +1291,7 @@ function resetLadder() {
 
 // Save current rankings to database
 async function saveRankings() {
-    console.log('💾 Starting save rankings process...');
+    console.log('💾 Starting save rankings process with batch update strategy...');
 
     if (!adminData.players || adminData.players.length === 0) {
         alert('No players to save rankings for.');
