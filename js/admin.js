@@ -1302,7 +1302,9 @@ async function saveRankings() {
         // Show progress notification
         showNotification('Saving rankings to database...', 'info');
 
-        if (window.poolDB && window.poolDB.supabase) {
+        console.log('🔍 Database check - poolDB:', !!window.poolDB, 'supabase:', !!window.poolDB?.supabase);
+
+        if (window.poolDB && (window.poolDB.supabase || window.supabase)) {
             // Use batch update to avoid unique constraint conflicts
             console.log('🔄 Using batch update strategy for rankings...');
 
@@ -1314,9 +1316,11 @@ async function saveRankings() {
             }));
 
             console.log('🔄 Step 1: Setting temporary negative ranks...');
+            const supabaseClient = window.poolDB.supabase || window.supabase;
+
             for (const update of tempUpdates) {
                 try {
-                    await poolDB.supabase
+                    await supabaseClient
                         .from('players')
                         .update({ rank: update.rank, last_active: update.last_active })
                         .eq('id', update.id);
@@ -1332,7 +1336,7 @@ async function saveRankings() {
 
             for (const player of adminData.players) {
                 try {
-                    const { error } = await poolDB.supabase
+                    const { error } = await supabaseClient
                         .from('players')
                         .update({
                             rank: player.rank,
