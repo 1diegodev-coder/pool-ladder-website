@@ -6,14 +6,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         waitForSupabase(async () => {
             await loadAndDisplayLadder();
             initializeFilters();
-            console.log('Ladder page initialized with admin data');
+            startAutoRefresh();
+            console.log('Ladder page initialized with admin data and auto-refresh');
         });
     } else {
         // Fallback if waitForSupabase is not available
         setTimeout(async () => {
             await loadAndDisplayLadder();
             initializeFilters();
-            console.log('Ladder page initialized with admin data');
+            startAutoRefresh();
+            console.log('Ladder page initialized with admin data and auto-refresh');
         }, 1000);
     }
 });
@@ -48,19 +50,82 @@ async function loadAdminData() {
 
 // Load and display ladder data
 async function loadAndDisplayLadder() {
-    const adminData = await loadAdminData();
-    allPlayers = adminData.players
-        .sort((a, b) => a.rank - b.rank) // Sort by rank
-        .map(player => ({
-            ...player,
-            winRate: calculateWinRate(player.wins || 0, player.losses || 0),
-            totalGames: (player.wins || 0) + (player.losses || 0),
-            status: player.status || 'active',
-            tier: getTier(player.rank)
-        }));
-    
-    displayedPlayers = [...allPlayers];
-    renderLadderTable();
+    console.log('🔄 Refreshing ladder data...');
+    try {
+        const adminData = await loadAdminData();
+        const previousCount = allPlayers.length;
+
+        allPlayers = adminData.players
+            .filter(player => player.rank != null && player.rank !== undefined) // Only players with ranks
+            .sort((a, b) => a.rank - b.rank) // Sort by rank
+            .map(player => ({
+                ...player,
+                winRate: calculateWinRate(player.wins || 0, player.losses || 0),
+                totalGames: (player.wins || 0) + (player.losses || 0),
+                status: player.status || 'active',
+                tier: getTier(player.rank)
+            }));
+
+        displayedPlayers = [...allPlayers];
+        renderLadderTable();
+
+        if (previousCount !== allPlayers.length) {
+            console.log(`✅ Ladder updated: ${allPlayers.length} players (was ${previousCount})`);
+        }
+
+        // Update last refresh time
+        updateLastRefreshTime();
+
+    } catch (error) {
+        console.error('❌ Error refreshing ladder data:', error);
+    }
+}
+
+// Start automatic refresh every 30 seconds
+function startAutoRefresh() {
+    // Refresh every 30 seconds
+    setInterval(async () => {
+        await loadAndDisplayLadder();
+    }, 30000);
+
+    console.log('🔄 Auto-refresh started (every 30 seconds)');
+}
+
+// Manual refresh function
+async function refreshLadder() {
+    console.log('🔄 Manual ladder refresh triggered');
+    await loadAndDisplayLadder();
+
+    // Show brief notification
+    const notification = document.createElement('div');
+    notification.textContent = '✅ Ladder refreshed!';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--neon-green);
+        color: var(--obsidian-black);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        z-index: 9999;
+        font-weight: 600;
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (notification.parentNode) {
+            document.body.removeChild(notification);
+        }
+    }, 2000);
+}
+
+// Update last refresh time display
+function updateLastRefreshTime() {
+    const timeElement = document.getElementById('lastRefreshTime');
+    if (timeElement) {
+        const now = new Date();
+        timeElement.textContent = now.toLocaleTimeString();
+    }
 }
 
 // Calculate win rate percentage
