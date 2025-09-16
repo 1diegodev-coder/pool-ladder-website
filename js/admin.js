@@ -1319,13 +1319,13 @@ async function saveRankings() {
 
             for (const update of tempUpdates) {
                 try {
-                    // Use the poolDB's internal method but access the supabase client directly
-                    const response = await fetch(`https://ngcgnklizohgoxmqhpdw.supabase.co/rest/v1/players?id=eq.${update.id}`, {
+                    // Use direct REST API call with correct credentials
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${update.id}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc',
-                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc'
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                         },
                         body: JSON.stringify({
                             rank: update.rank,
@@ -1348,12 +1348,12 @@ async function saveRankings() {
 
             for (const player of adminData.players) {
                 try {
-                    const response = await fetch(`https://ngcgnklizohgoxmqhpdw.supabase.co/rest/v1/players?id=eq.${player.id}`, {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${player.id}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc',
-                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc'
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                         },
                         body: JSON.stringify({
                             rank: player.rank,
