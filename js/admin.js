@@ -1302,9 +1302,9 @@ async function saveRankings() {
         // Show progress notification
         showNotification('Saving rankings to database...', 'info');
 
-        console.log('🔍 Database check - poolDB:', !!window.poolDB, 'supabase:', !!window.poolDB?.supabase);
+        console.log('🔍 Database check - poolDB:', !!window.poolDB, 'supabase ready:', window.poolDB?.checkSupabaseReady());
 
-        if (window.poolDB && (window.poolDB.supabase || window.supabase)) {
+        if (window.poolDB && window.poolDB.checkSupabaseReady()) {
             // Use batch update to avoid unique constraint conflicts
             console.log('🔄 Using batch update strategy for rankings...');
 
@@ -1316,14 +1316,26 @@ async function saveRankings() {
             }));
 
             console.log('🔄 Step 1: Setting temporary negative ranks...');
-            const supabaseClient = window.poolDB.supabase || window.supabase;
 
             for (const update of tempUpdates) {
                 try {
-                    await supabaseClient
-                        .from('players')
-                        .update({ rank: update.rank, last_active: update.last_active })
-                        .eq('id', update.id);
+                    // Use the poolDB's internal method but access the supabase client directly
+                    const response = await fetch(`https://ngcgnklizohgoxmqhpdw.supabase.co/rest/v1/players?id=eq.${update.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc'
+                        },
+                        body: JSON.stringify({
+                            rank: update.rank,
+                            last_active: update.last_active
+                        })
+                    });
+
+                    if (!response.ok) {
+                        console.warn(`⚠️ Temp update failed for player ${update.id}: ${response.status}`);
+                    }
                 } catch (error) {
                     console.warn(`⚠️ Temp update failed for player ${update.id}:`, error);
                 }
@@ -1336,20 +1348,25 @@ async function saveRankings() {
 
             for (const player of adminData.players) {
                 try {
-                    const { error } = await supabaseClient
-                        .from('players')
-                        .update({
+                    const response = await fetch(`https://ngcgnklizohgoxmqhpdw.supabase.co/rest/v1/players?id=eq.${player.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nY2dua2xpem9oZ294bXFocGR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY0NTQ5MDcsImV4cCI6MjA0MjAzMDkwN30.VKUYsUCJPRG7L_zOVT4Wf8yJG7sDu7HClGwz5BZGVRc'
+                        },
+                        body: JSON.stringify({
                             rank: player.rank,
                             last_active: new Date().toISOString()
                         })
-                        .eq('id', player.id);
+                    });
 
-                    if (error) {
-                        console.error(`❌ Failed to save ranking for ${player.name}:`, error);
-                        failureCount++;
-                    } else {
+                    if (response.ok) {
                         console.log(`✅ Saved ranking for ${player.name}: #${player.rank}`);
                         successCount++;
+                    } else {
+                        console.error(`❌ Failed to save ranking for ${player.name}: ${response.status}`);
+                        failureCount++;
                     }
                 } catch (error) {
                     console.error(`❌ Failed to save ranking for ${player.name}:`, error);
