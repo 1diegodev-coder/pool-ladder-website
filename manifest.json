@@ -67,21 +67,21 @@
       "short_name": "Ladder",
       "description": "View current ladder rankings",
       "url": "/pages/ladder.html",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     },
     {
       "name": "Match Results",
       "short_name": "Matches",
       "description": "View match schedules and results",
       "url": "/pages/matches.html",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     },
     {
       "name": "Admin Panel",
       "short_name": "Admin",
       "description": "League administration",
       "url": "/pages/admin.html",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96" }]
     }
   ],
   "screenshots": [

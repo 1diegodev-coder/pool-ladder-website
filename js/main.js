@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     initializeMobileMenu();
     initializeJoinForm();
-    
+    initializeRealTimeValidation();
+
     console.log('The Pool Ladder - Website Initialized');
 });
 
@@ -90,46 +91,66 @@ function initializeAnimations() {
 
 // Mobile menu functionality
 function initializeMobileMenu() {
-    const header = document.querySelector('.header');
-    const nav = document.querySelector('.nav');
-    
-    // Create mobile menu button if it doesn't exist
-    if (window.innerWidth <= 768 && !document.querySelector('.mobile-menu-btn')) {
-        const mobileMenuBtn = document.createElement('button');
-        mobileMenuBtn.className = 'mobile-menu-btn';
-        mobileMenuBtn.innerHTML = '☰';
-        mobileMenuBtn.style.cssText = `
-            display: block;
-            background: none;
-            border: none;
-            color: var(--chrome-silver);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            margin-left: auto;
-        `;
-        
-        // Insert before user actions
-        const userActions = document.querySelector('.user-actions');
-        if (userActions && userActions.parentNode) {
-            userActions.parentNode.insertBefore(mobileMenuBtn, userActions);
+    // Mobile menu functionality
+    window.toggleMobileMenu = function() {
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+
+        if (mobileNav && mobileMenuBtn) {
+            const isActive = mobileNav.classList.contains('active');
+
+            // Update ARIA attributes
+            mobileMenuBtn.setAttribute('aria-expanded', !isActive);
+
+            if (isActive) {
+                mobileNav.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            } else {
+                mobileNav.classList.add('active');
+                mobileMenuBtn.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         }
-        
-        // Toggle mobile menu
-        mobileMenuBtn.addEventListener('click', function() {
-            nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
-            this.textContent = nav.style.display === 'block' ? '✕' : '☰';
-        });
-    }
-    
+    };
+
+    window.closeMobileMenu = function() {
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+
+        if (mobileNav && mobileMenuBtn) {
+            mobileNav.classList.remove('active');
+            mobileMenuBtn.classList.remove('active');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Close mobile menu when clicking outside or pressing escape
+    document.addEventListener('click', function(e) {
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+
+        if (mobileNav && mobileNav.classList.contains('active')) {
+            if (e.target === mobileNav) {
+                closeMobileMenu();
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const mobileNav = document.getElementById('mobileNav');
+            if (mobileNav && mobileNav.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        }
+    });
+
     // Handle window resize
     window.addEventListener('resize', function() {
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
         if (window.innerWidth > 768) {
-            if (nav) nav.style.display = '';
-            if (mobileMenuBtn) mobileMenuBtn.style.display = 'none';
-        } else {
-            if (mobileMenuBtn) mobileMenuBtn.style.display = 'block';
+            closeMobileMenu();
         }
     });
 }
@@ -159,6 +180,7 @@ function closeJoinModal() {
         const form = document.getElementById('joinForm');
         if (form) form.reset();
         hideFormStatus();
+        clearFormErrors();
     }
 }
 
@@ -194,22 +216,47 @@ function initializeJoinForm() {
 
 async function handleJoinFormSubmit(e) {
     e.preventDefault();
-    
+
     const form = e.target;
     const formData = new FormData(form);
-    
+
+    // Clear previous errors
+    clearFormErrors();
+
     // Get form values
     const name = formData.get('name').trim();
     const email = formData.get('email').trim();
     const experience = formData.get('experience');
     const message = formData.get('message').trim();
-    
-    // Validate required fields
-    if (!name || !email || !experience) {
-        showFormStatus('Please fill in all required fields.', 'error');
+
+    // Validate with real-time feedback
+    let hasErrors = false;
+
+    if (!name) {
+        showFieldError('name', 'Name is required');
+        hasErrors = true;
+    } else if (name.length < 2) {
+        showFieldError('name', 'Name must be at least 2 characters');
+        hasErrors = true;
+    }
+
+    if (!email) {
+        showFieldError('email', 'Email is required');
+        hasErrors = true;
+    } else if (!isValidEmail(email)) {
+        showFieldError('email', 'Please enter a valid email address');
+        hasErrors = true;
+    }
+
+    if (!experience) {
+        showFieldError('experience', 'Please select your experience level');
+        hasErrors = true;
+    }
+
+    if (hasErrors) {
         return;
     }
-    
+
     // Show loading state
     setSubmitLoading(true);
     
@@ -358,19 +405,46 @@ function hideFormStatus() {
 
 function setSubmitLoading(loading) {
     const submitBtn = document.getElementById('joinSubmitBtn');
+    const modal = document.getElementById('joinModal');
+
     if (!submitBtn) return;
-    
-    const submitText = submitBtn.querySelector('.submit-text');
-    const loadingText = submitBtn.querySelector('.submit-loading');
-    
+
     if (loading) {
-        if (submitText) submitText.style.display = 'none';
-        if (loadingText) loadingText.style.display = 'inline';
+        // Add loading class to button
+        submitBtn.classList.add('loading');
         submitBtn.disabled = true;
+
+        // Add modal loading overlay
+        if (modal) {
+            let loadingOverlay = modal.querySelector('.modal-loading');
+            if (!loadingOverlay) {
+                loadingOverlay = document.createElement('div');
+                loadingOverlay.className = 'modal-loading';
+                loadingOverlay.innerHTML = `
+                    <div class="loading-spinner"></div>
+                `;
+                modal.querySelector('.modal-content').style.position = 'relative';
+                modal.querySelector('.modal-content').appendChild(loadingOverlay);
+            }
+            loadingOverlay.classList.add('active');
+        }
     } else {
-        if (submitText) submitText.style.display = 'inline';
-        if (loadingText) loadingText.style.display = 'none';
+        // Remove loading class from button
+        submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
+
+        // Remove modal loading overlay
+        if (modal) {
+            const loadingOverlay = modal.querySelector('.modal-loading');
+            if (loadingOverlay) {
+                loadingOverlay.classList.remove('active');
+                setTimeout(() => {
+                    if (loadingOverlay.parentNode) {
+                        loadingOverlay.remove();
+                    }
+                }, 300);
+            }
+        }
     }
 }
 
@@ -504,6 +578,98 @@ modalStyles.textContent = `
         color: var(--crimson-red);
     }
 
+    .form-status.info {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid var(--electric-cyan);
+        color: var(--electric-cyan);
+    }
+
+    /* Enhanced Button Loading States */
+    .btn.loading {
+        position: relative;
+        color: transparent !important;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .btn.loading::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 18px;
+        height: 18px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .btn-primary.loading::before {
+        border-top-color: var(--obsidian-black);
+    }
+
+    .btn-outline.loading::before {
+        border-top-color: var(--electric-cyan);
+    }
+
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Form Input Error States */
+    .form-input.error,
+    .form-textarea.error {
+        border-color: var(--crimson-red) !important;
+        box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.1) !important;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    /* Success state for inputs */
+    .form-input.success,
+    .form-textarea.success {
+        border-color: var(--neon-green) !important;
+        box-shadow: 0 0 0 2px rgba(76, 255, 76, 0.1) !important;
+    }
+
+    /* Loading overlay for modal */
+    .modal-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(13, 13, 13, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modal-loading.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(0, 212, 255, 0.3);
+        border-top: 3px solid var(--electric-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
     .modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -605,3 +771,113 @@ modalStyles.textContent = `
     }
 `;
 document.head.appendChild(modalStyles);
+
+// Form validation helper functions
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function showFieldError(fieldName, message) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (field) {
+        field.classList.add('error');
+        field.style.borderColor = 'var(--crimson-red)';
+
+        // Remove existing error
+        const existingError = field.parentNode.querySelector('.field-error');
+        if (existingError) existingError.remove();
+
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.style.cssText = 'color: var(--crimson-red); font-size: 0.8rem; margin-top: 0.25rem; font-weight: 500;';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+
+        // Add shake animation
+        field.style.animation = 'shake 0.5s ease-in-out';
+        setTimeout(() => {
+            field.style.animation = '';
+        }, 500);
+    }
+}
+
+function clearFormErrors() {
+    const errorElements = document.querySelectorAll('.field-error');
+    errorElements.forEach(el => el.remove());
+
+    const fields = document.querySelectorAll('.form-input, .form-textarea');
+    fields.forEach(field => {
+        field.classList.remove('error');
+        field.style.borderColor = '';
+        field.style.animation = '';
+    });
+}
+
+// Real-time validation listeners
+function initializeRealTimeValidation() {
+    const form = document.getElementById('joinForm');
+    if (!form) return;
+
+    const nameInput = form.querySelector('[name="name"]');
+    const emailInput = form.querySelector('[name="email"]');
+    const experienceSelect = form.querySelector('[name="experience"]');
+
+    // Name validation
+    if (nameInput) {
+        nameInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            const errorEl = this.parentNode.querySelector('.field-error');
+
+            if (!value) {
+                if (!errorEl) showFieldError('name', 'Name is required');
+            } else if (value.length < 2) {
+                if (!errorEl) showFieldError('name', 'Name must be at least 2 characters');
+            } else {
+                if (errorEl) {
+                    errorEl.remove();
+                    this.style.borderColor = '';
+                    this.classList.remove('error');
+                }
+                // Add success state for valid input
+                this.classList.add('success');
+                setTimeout(() => this.classList.remove('success'), 2000);
+            }
+        });
+    }
+
+    // Email validation
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            const errorEl = this.parentNode.querySelector('.field-error');
+
+            if (!value) {
+                if (!errorEl) showFieldError('email', 'Email is required');
+            } else if (!isValidEmail(value)) {
+                if (!errorEl) showFieldError('email', 'Please enter a valid email address');
+            } else {
+                if (errorEl) {
+                    errorEl.remove();
+                    this.style.borderColor = '';
+                    this.classList.remove('error');
+                }
+                // Add success state for valid input
+                this.classList.add('success');
+                setTimeout(() => this.classList.remove('success'), 2000);
+            }
+        });
+    }
+
+    // Experience validation
+    if (experienceSelect) {
+        experienceSelect.addEventListener('change', function() {
+            const errorEl = this.parentNode.querySelector('.field-error');
+            if (this.value && errorEl) {
+                errorEl.remove();
+                this.style.borderColor = '';
+                this.classList.remove('error');
+            }
+        });
+    }
+}

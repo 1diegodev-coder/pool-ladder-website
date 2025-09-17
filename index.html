@@ -22,8 +22,15 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Load fonts asynchronously for better performance -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap"></noscript>
+
     <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header Section -->
@@ -41,18 +48,31 @@
             </nav>
             <div class="user-actions">
                 <a href="pages/login.html" class="admin-link">Admin</a>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileNav">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Overlay -->
+    <nav class="mobile-nav" id="mobileNav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="nav-link active" onclick="closeMobileMenu()">Home</a>
+        <a href="pages/ladder.html" class="nav-link" onclick="closeMobileMenu()">Ladder</a>
+        <a href="pages/matches.html" class="nav-link" onclick="closeMobileMenu()">Matches</a>
+        <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link" onclick="closeMobileMenu()">Rules</a>
+        <a href="pages/login.html" class="admin-link" onclick="closeMobileMenu()">Admin</a>
+    </nav>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-background"></div>
         <div class="container">
-            <div class="hero-content">
+            <div class="hero-content stagger-animation">
                 <div class="hero-text">
-                    <h1 class="hero-title">THE POOL LADDER</h1>
-                    <p class="hero-subtitle">8-Ball League - International Rules</p>
+                    <h1 class="hero-title floating">THE POOL LADDER</h1>
                 </div>
             </div>
         </div>
@@ -61,13 +81,11 @@
     <!-- Quick Links Section -->
     <section class="quick-links">
         <div class="container">
-            <div class="links-grid">
+            <div class="links-grid stagger-animation">
                 <a href="pages/ladder.html" class="link-card">
-                    <div class="link-icon">🏆</div>
                     <h3>View Rankings</h3>
                 </a>
                 <a href="pages/matches.html" class="link-card">
-                    <div class="link-icon">⚔️</div>
                     <h3>Match Center</h3>
                 </a>
             </div>
@@ -78,10 +96,10 @@
     <section class="cta">
         <div class="container">
             <div class="cta-content">
-                <h2>JOIN THE PREMIER LEAGUE</h2>
+                <h2>JOIN THE 2026 LEAGUE</h2>
                 <div class="cta-buttons">
                     <button class="btn btn-primary btn-large" onclick="openJoinModal()">APPLY TO JOIN</button>
-                    <a href="pages/rules.html" class="btn btn-outline btn-large">View Rules & Format</a>
+                    <a href="pages/rules.html" class="btn btn-outline btn-large">View Rules</a>
                 </div>
             </div>
         </div>
@@ -119,7 +137,7 @@
                 <button class="modal-close" onclick="closeJoinModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="join-intro">Submit your application to join our competitive 8-ball pool league. We'll review your information and contact you with next steps.</p>
+                <p class="join-intro">Submit your application to join our league. We'll review your information and contact you with next steps.</p>
                 <form id="joinForm" class="join-form">
                     <div class="form-group">
                         <label>Full Name *</label>
