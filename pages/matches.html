@@ -147,25 +147,6 @@
         </div>
     </footer>
 
-    <!-- Supabase CDN -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
-    
-    <!-- Database configuration -->
-    <script src="../js/supabase-config.js"></script>
-    
-    <!-- Force Supabase initialization -->
-    <script>
-        window.addEventListener('load', () => {
-            console.log('🔄 Matches page loaded, attempting Supabase initialization');
-            if (window.supabase && typeof initializeSupabase === 'function') {
-                initializeSupabase();
-            }
-        });
-    </script>
-    
-    <!-- Sample data for demo -->
-    <script src="../sample-data.js"></script>
-    
     <!-- Main matches script -->
     <script src="../js/matches.js"></script>
     

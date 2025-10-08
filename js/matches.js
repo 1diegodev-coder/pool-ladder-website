@@ -16,28 +16,22 @@ let displayedScheduledMatches = [];
 let displayedCompletedMatches = [];
 let currentTab = 'scheduled';
 
-// Load admin data from database or localStorage
+// Load data from JSON files
 async function loadAdminData() {
-    if (window.poolDB) {
-        try {
-            const players = await poolDB.getAllPlayers();
-            const matches = await poolDB.getAllMatches();
-            return { players: players || [], matches: matches || [] };
-        } catch (error) {
-            console.error('Error loading from database, falling back to localStorage:', error);
-        }
-    }
-    
-    // Fallback to localStorage
     try {
-        const savedData = localStorage.getItem('poolLadderAdminData');
-        if (savedData) {
-            return JSON.parse(savedData);
-        }
+        const [playersRes, matchesRes] = await Promise.all([
+            fetch('/data/players.json'),
+            fetch('/data/matches.json')
+        ]);
+
+        const players = await playersRes.json();
+        const matches = await matchesRes.json();
+
+        return { players: players || [], matches: matches || [] };
     } catch (error) {
-        console.error('Error loading admin data:', error);
+        console.error('Error loading data from JSON files:', error);
+        return { players: [], matches: [] };
     }
-    return { players: [], matches: [] };
 }
 
 // Load and display all matches

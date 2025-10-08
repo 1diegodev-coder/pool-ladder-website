@@ -130,31 +130,6 @@
         </div>
     </footer>
 
-    <!-- Supabase CDN -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js" onload="console.log('📦 Supabase CDN loaded successfully')" onerror="console.error('❌ Failed to load Supabase CDN')"></script>
-    
-    <!-- Database configuration -->
-    <script src="../js/supabase-config.js"></script>
-    
-    <!-- Force Supabase initialization -->
-    <script>
-        // Try to initialize Supabase immediately after library loads
-        window.addEventListener('load', () => {
-            console.log('🔄 Page loaded, attempting immediate Supabase initialization');
-            if (window.supabase) {
-                console.log('✅ Supabase library found');
-                if (typeof initializeSupabase === 'function') {
-                    initializeSupabase();
-                }
-            } else {
-                console.log('❌ Supabase library not found');
-            }
-        });
-    </script>
-    
-    <!-- Sample data for demo -->
-    <script src="../sample-data.js"></script>
-    
     <!-- Main ladder script -->
     <script src="../js/ladder.js"></script>
     

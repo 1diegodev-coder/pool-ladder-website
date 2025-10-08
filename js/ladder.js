@@ -1,51 +1,32 @@
-// Ladder Page JavaScript - Loads data directly from admin system
+// Ladder Page JavaScript - Loads data from JSON files
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Wait for Supabase to be available, then initialize
-    if (window.waitForSupabase) {
-        waitForSupabase(async () => {
-            await loadAndDisplayLadder();
-            initializeFilters();
-            startAutoRefresh();
-            console.log('Ladder page initialized with admin data and auto-refresh');
-        });
-    } else {
-        // Fallback if waitForSupabase is not available
-        setTimeout(async () => {
-            await loadAndDisplayLadder();
-            initializeFilters();
-            startAutoRefresh();
-            console.log('Ladder page initialized with admin data and auto-refresh');
-        }, 1000);
-    }
+    await loadAndDisplayLadder();
+    initializeFilters();
+    startAutoRefresh();
+    console.log('Ladder page initialized with data and auto-refresh');
 });
 
 // Global variables
 let allPlayers = [];
 let displayedPlayers = [];
 
-// Load admin data from database or localStorage
+// Load data from JSON files
 async function loadAdminData() {
-    if (window.poolDB) {
-        try {
-            const players = await poolDB.getAllPlayers();
-            const matches = await poolDB.getAllMatches();
-            return { players: players || [], matches: matches || [] };
-        } catch (error) {
-            console.error('Error loading from database, falling back to localStorage:', error);
-        }
-    }
-    
-    // Fallback to localStorage
     try {
-        const savedData = localStorage.getItem('poolLadderAdminData');
-        if (savedData) {
-            return JSON.parse(savedData);
-        }
+        const [playersRes, matchesRes] = await Promise.all([
+            fetch('/data/players.json'),
+            fetch('/data/matches.json')
+        ]);
+
+        const players = await playersRes.json();
+        const matches = await matchesRes.json();
+
+        return { players: players || [], matches: matches || [] };
     } catch (error) {
-        console.error('Error loading admin data:', error);
+        console.error('Error loading data from JSON files:', error);
+        return { players: [], matches: [] };
     }
-    return { players: [], matches: [] };
 }
 
 // Load and display ladder data
