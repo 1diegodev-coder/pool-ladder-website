@@ -856,9 +856,6 @@ async function renderScheduledMatches() {
 
         return `
             <div class="match-card">
-                <div class="match-header">
-                    <span class="match-date">${new Date(matchDate).toLocaleDateString()}</span>
-                </div>
                 <div class="match-players">
                     <span class="player">${player1Name}</span>
                     <span class="vs">vs</span>

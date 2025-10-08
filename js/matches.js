@@ -199,7 +199,7 @@ function createResultCard(match) {
                 </div>
 
                 <div class="vs-divider">
-                    <span class="vs-text">DEFEATED</span>
+                    <span class="vs-text">VS</span>
                 </div>
 
                 <div class="player-result loser">
