@@ -1435,6 +1435,107 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Publish Modal Functions
+function openPublishModal() {
+    console.log('🎯 Opening publish modal');
+    const modal = document.getElementById('publishModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+    } else {
+        console.error('❌ Publish modal not found');
+    }
+}
+
+function closePublishModal() {
+    const modal = document.getElementById('publishModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        // Clear form
+        const form = document.getElementById('publishForm');
+        if (form) form.reset();
+    }
+}
+
+async function publishChanges() {
+    console.log('📤 Publishing changes to GitHub...');
+
+    const form = document.getElementById('publishForm');
+    const commitMessage = form.querySelector('[name="commitMessage"]').value;
+
+    if (!commitMessage.trim()) {
+        alert('Please enter a commit message');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/publish', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                commitMessage: commitMessage,
+                players: adminData.players,
+                matches: adminData.matches,
+                meta: {
+                    version: '1.0.0',
+                    updated: new Date().toISOString()
+                }
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showNotification('✅ Changes published successfully!', 'success');
+            closePublishModal();
+            console.log('✅ Publish result:', result);
+        } else {
+            throw new Error(result.error || 'Publish failed');
+        }
+    } catch (error) {
+        console.error('❌ Publish error:', error);
+        alert(`Failed to publish changes: ${error.message}`);
+    }
+}
+
+// Export/Import Functions
+function exportData() {
+    const dataStr = JSON.stringify(adminData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `pool-ladder-data-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    console.log('✅ Data exported');
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            if (confirm(`Import data?\n\nPlayers: ${importedData.players?.length || 0}\nMatches: ${importedData.matches?.length || 0}\n\nThis will replace current data.`)) {
+                adminData = importedData;
+                saveAdminData();
+                location.reload();
+            }
+        } catch (error) {
+            alert('Error importing data: Invalid JSON file');
+            console.error('Import error:', error);
+        }
+    };
+    reader.readAsText(file);
+}
+
 // Make functions global for onclick handlers
 window.openAddPlayerModal = openAddPlayerModal;
 window.closeAddPlayerModal = closeAddPlayerModal;
@@ -1454,6 +1555,11 @@ window.movePlayerDown = movePlayerDown;
 window.recalculateRankings = recalculateRankings;
 window.resetLadder = resetLadder;
 window.saveRankings = saveRankings;
+window.openPublishModal = openPublishModal;
+window.closePublishModal = closePublishModal;
+window.publishChanges = publishChanges;
+window.exportData = exportData;
+window.handleFileSelect = handleFileSelect;
 
 // Add CSS styles for the new player list
 const adminStyles = document.createElement('style');
