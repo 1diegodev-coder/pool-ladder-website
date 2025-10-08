@@ -934,18 +934,16 @@ async function recordMatchResult(matchId) {
             completed_at: new Date().toISOString()
         };
         
-        if (false) { // poolDB removed
-            await poolDB.updateMatch(matchId, matchUpdates);
-        } else {
-            // Fallback to localStorage
-            match.status = 'completed';
-            match.player1Score = score1;
-            match.player2Score = score2;
-            match.winner = winner;
-            match.loser = loser;
-            match.completedDate = new Date().toISOString();
-            saveAdminData();
-        }
+        // Update match in localStorage
+        match.status = 'completed';
+        match.player1_score = score1;
+        match.player2_score = score2;
+        match.winner_id = winnerId;
+        match.winner_name = winnerName;
+        match.loser_id = loserId;
+        match.loser_name = loserName;
+        match.completed_at = new Date().toISOString();
+        saveAdminData();
         
         // Update player stats
         await updatePlayerStats(winnerId, loserId);
