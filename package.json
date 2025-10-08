@@ -9,7 +9,8 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.0"
+    "jsonwebtoken": "^9.0.0",
+    "@octokit/rest": "^20.0.0"
   },
   "devDependencies": {
     "vercel": "^32.0.0"
