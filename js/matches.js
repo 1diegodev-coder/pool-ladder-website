@@ -241,21 +241,6 @@ function createScheduledMatchCard(match) {
                     </div>
                 </div>
             </div>
-            
-            <div class="match-info">
-                <div class="info-item">
-                    <span class="info-label">Match Type</span>
-                    <span class="info-value">Regular Season</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Created</span>
-                    <span class="info-value">${new Date(match.created).toLocaleDateString()}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Status</span>
-                    <span class="info-value">Awaiting Result</span>
-                </div>
-            </div>
         </div>
     `;
 }

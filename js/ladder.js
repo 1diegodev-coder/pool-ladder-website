@@ -156,20 +156,13 @@ function createPlayerRow(player) {
             <td class="rank-cell">
                 <div class="rank-container">
                     <span class="rank-number">${player.rank}</span>
-                    <span class="rank-badge ${tierClass}">${getTierIcon(player.tier)}</span>
                     ${trend ? `<span class="trend-indicator ${trend}">${getTrendIcon(trend)}</span>` : ''}
                 </div>
             </td>
             <td class="player-cell">
                 <div class="player-info">
-                    <div class="player-avatar">
-                        ${getPlayerInitials(player.name)}
-                    </div>
                     <div class="player-details">
                         <div class="player-name">${player.name}</div>
-                        <div class="player-meta">
-                            <span class="last-active">Last active: ${lastActiveDate}</span>
-                        </div>
                     </div>
                 </div>
             </td>
