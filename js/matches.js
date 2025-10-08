@@ -225,19 +225,19 @@ function createScheduledMatchCard(match) {
                     </div>
                     <div class="scheduled-player-details">
                         <div class="scheduled-player-name">${match.player1_name || match.player1?.name || 'Player 1'}</div>
-                        <div class="scheduled-player-rank">Challenger</div>
+                        <div class="scheduled-player-rank">Rank #${match.player1_rank || '—'}</div>
                     </div>
                 </div>
-                
+
                 <div class="vs-indicator">VS</div>
-                
+
                 <div class="scheduled-player right">
                     <div class="player-avatar-small">
                         ${getPlayerInitials(match.player2_name || match.player2?.name || 'P2')}
                     </div>
                     <div class="scheduled-player-details">
                         <div class="scheduled-player-name">${match.player2_name || match.player2?.name || 'Player 2'}</div>
-                        <div class="scheduled-player-rank">Opponent</div>
+                        <div class="scheduled-player-rank">Rank #${match.player2_rank || '—'}</div>
                     </div>
                 </div>
             </div>
