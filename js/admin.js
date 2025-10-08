@@ -9,21 +9,11 @@ let adminData = {
 
 // Load data on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Admin panel DOM loaded, waiting for Supabase...');
-    
-    // Use the improved waitForSupabase function
-    if (typeof waitForSupabase === 'function') {
-        waitForSupabase(async () => {
-            console.log('✅ Supabase ready, initializing admin panel');
-            await initializeAdminPanel();
-        });
-    } else {
-        console.warn('⚠️ waitForSupabase function not found, initializing immediately');
-        setTimeout(() => initializeAdminPanel(), 1000);
-    }
+    console.log('🚀 Admin panel initializing...');
+    initializeAdminPanel();
 });
 
-// Initialize admin panel after Supabase is ready
+// Initialize admin panel
 async function initializeAdminPanel() {
     await loadAdminData();
     initializeAdminTabs();
@@ -33,8 +23,8 @@ async function initializeAdminPanel() {
     await renderRecentResults();
     await renderLadderTable();
     await updateDashboardStats();
-    
-    console.log('Admin panel initialized with database connection');
+
+    console.log('✅ Admin panel initialized');
 }
 
 // Initialize form handlers for Enter key support
@@ -201,7 +191,7 @@ async function saveMatchEdit() {
         }
         
         // Update in database
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             await poolDB.updateMatch(matchId, updateData);
         } else {
             // Fallback to localStorage
@@ -239,37 +229,46 @@ async function saveMatchEdit() {
 // Data persistence
 async function loadAdminData() {
     console.log('📋 Loading admin data...');
-    
-    if (window.poolDB) {
-        try {
-            console.log('🗺️ Using poolDB to load data');
-            const players = await poolDB.getAllPlayers();
-            const matches = await poolDB.getAllMatches();
-            adminData.players = players || [];
-            adminData.matches = matches || [];
-            console.log('✅ Successfully loaded data:', { 
-                players: adminData.players.length, 
-                matches: adminData.matches.length 
-            });
-        } catch (error) {
-            console.error('❌ Error loading from database:', error);
-            console.log('🔄 Falling back to localStorage');
-            loadFromLocalStorage();
-        }
-    } else {
-        console.warn('⚠️ poolDB not available, using localStorage');
-        loadFromLocalStorage();
-    }
-}
 
-function loadFromLocalStorage() {
+    // Try loading from localStorage first (for admin changes not yet published)
     const savedData = localStorage.getItem('poolLadderAdminData');
     if (savedData) {
         try {
             adminData = JSON.parse(savedData);
+            console.log('✅ Loaded data from localStorage:', {
+                players: adminData.players.length,
+                matches: adminData.matches.length
+            });
+            return;
         } catch (error) {
-            console.error('Error loading admin data:', error);
+            console.error('Error loading from localStorage:', error);
         }
+    }
+
+    // If no localStorage data, fetch from JSON files
+    try {
+        const [playersRes, matchesRes] = await Promise.all([
+            fetch('/data/players.json'),
+            fetch('/data/matches.json')
+        ]);
+
+        if (playersRes.ok && matchesRes.ok) {
+            adminData.players = await playersRes.json();
+            adminData.matches = await matchesRes.json();
+
+            console.log('✅ Loaded data from JSON files:', {
+                players: adminData.players.length,
+                matches: adminData.matches.length
+            });
+        } else {
+            console.warn('⚠️ Could not load JSON files, starting with empty data');
+            adminData.players = [];
+            adminData.matches = [];
+        }
+    } catch (error) {
+        console.error('❌ Error loading from JSON files:', error);
+        adminData.players = [];
+        adminData.matches = [];
     }
 }
 
@@ -365,7 +364,7 @@ async function addNewPlayer() {
         let addedPlayer;
         console.log('🔍 Debug: window.poolDB exists?', !!window.poolDB);
         
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             console.log('✅ Using poolDB to add player');
             addedPlayer = await poolDB.addPlayer(newPlayerData);
         } else {
@@ -440,7 +439,7 @@ async function renderPlayersTable() {
 async function removePlayer(playerId) {
     if (confirm('Are you sure you want to remove this player?')) {
         try {
-            if (window.poolDB) {
+            if (false) { // poolDB removed
                 await poolDB.deletePlayer(playerId);
             } else {
                 // Fallback to localStorage
@@ -777,7 +776,7 @@ async function scheduleMatch() {
 
         let matchSaved = false;
 
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             try {
                 console.log('🗄️ Trying to save to database...');
                 await poolDB.addMatch(newMatchData);
@@ -935,7 +934,7 @@ async function recordMatchResult(matchId) {
             completed_at: new Date().toISOString()
         };
         
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             await poolDB.updateMatch(matchId, matchUpdates);
         } else {
             // Fallback to localStorage
@@ -982,7 +981,7 @@ async function updatePlayerStats(winnerId, loserId) {
                 last_active: new Date().toISOString()
             };
             
-            if (window.poolDB) {
+            if (false) { // poolDB removed
                 await poolDB.updatePlayer(winnerId, winnerUpdates);
                 await poolDB.updatePlayer(loserId, loserUpdates);
             } else {
@@ -1219,7 +1218,7 @@ async function movePlayerUp(playerId) {
 
         // Save to both database and localStorage
         await saveAdminData();
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             try {
                 await poolDB.updatePlayer(player.id, { rank: player.rank });
                 await poolDB.updatePlayer(playerAbove.id, { rank: playerAbove.rank });
@@ -1248,7 +1247,7 @@ async function movePlayerDown(playerId) {
 
         // Save to both database and localStorage
         await saveAdminData();
-        if (window.poolDB) {
+        if (false) { // poolDB removed
             try {
                 await poolDB.updatePlayer(player.id, { rank: player.rank });
                 await poolDB.updatePlayer(playerBelow.id, { rank: playerBelow.rank });

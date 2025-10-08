@@ -19,7 +19,9 @@ const CACHE_FILES = [
   '/js/ladder.js',
   '/js/matches.js',
   '/js/admin.js',
-  '/js/supabase-config.js',
+  '/data/players.json',
+  '/data/matches.json',
+  '/data/meta.json',
   '/manifest.json',
   OFFLINE_URL
 ];
