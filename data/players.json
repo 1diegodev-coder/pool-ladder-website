@@ -63,11 +63,12 @@
     "id": 11,
     "name": "Jack Sharpe",
     "rank": 7,
-    "wins": 1,
+    "wins": 2,
     "losses": 1,
     "status": "active",
     "created_at": "2025-09-15T18:48:56.03123+00:00",
-    "last_active": "2025-09-18T08:37:55.733+00:00"
+    "last_active": "2025-09-18T08:37:55.733+00:00",
+    "lastActive": "2025-10-08T20:12:04.702Z"
   },
   {
     "id": 14,
@@ -84,10 +85,11 @@
     "name": "Tessa Davidson",
     "rank": 9,
     "wins": 1,
-    "losses": 1,
+    "losses": 2,
     "status": "active",
     "created_at": "2025-09-15T18:50:09.409386+00:00",
-    "last_active": "2025-09-20T14:17:39.345+00:00"
+    "last_active": "2025-09-20T14:17:39.345+00:00",
+    "lastActive": "2025-10-08T20:12:04.702Z"
   },
   {
     "id": 16,
