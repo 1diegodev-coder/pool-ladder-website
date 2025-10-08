@@ -286,10 +286,14 @@ function initializeAdminTabs() {
     const tabs = document.querySelectorAll('.admin-tab');
     const contents = document.querySelectorAll('.admin-content');
 
+    console.log('🔧 Initializing admin tabs:', tabs.length, 'tabs found');
+    console.log('🔧 Admin content sections:', contents.length, 'sections found');
+
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const targetTab = this.getAttribute('data-tab');
-            
+            console.log('🔘 Tab clicked:', targetTab);
+
             // Remove active class from all tabs and contents
             tabs.forEach(t => t.classList.remove('active'));
             contents.forEach(c => c.style.display = 'none');
@@ -301,6 +305,9 @@ function initializeAdminTabs() {
             const targetContent = document.getElementById(targetTab + '-tab');
             if (targetContent) {
                 targetContent.style.display = 'block';
+                console.log('✅ Showing tab:', targetTab);
+            } else {
+                console.error('❌ Tab content not found:', targetTab + '-tab');
             }
         });
     });
