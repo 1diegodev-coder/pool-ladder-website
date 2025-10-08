@@ -207,37 +207,19 @@ function createScheduledMatchCard(match) {
     const isPast = matchDate < new Date();
     
     return `
-        <div class="scheduled-match-card ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}">
-            <div class="match-header">
-                <div class="match-datetime">
-                    <div class="match-date">${formattedDate}</div>
-                    <div class="match-time">${formattedTime}</div>
-                </div>
-                <div class="match-status ${isToday ? 'today' : isPast ? 'past' : 'upcoming'}">
-                    ${isToday ? 'Today' : isPast ? 'Past Due' : 'Scheduled'}
-                </div>
-            </div>
-            
+        <div class="scheduled-match-card">
             <div class="match-players">
                 <div class="scheduled-player">
-                    <div class="player-avatar-small">
-                        ${getPlayerInitials(match.player1_name || match.player1?.name || 'P1')}
-                    </div>
                     <div class="scheduled-player-details">
                         <div class="scheduled-player-name">${match.player1_name || match.player1?.name || 'Player 1'}</div>
-                        <div class="scheduled-player-rank">Rank #${match.player1_rank || '—'}</div>
                     </div>
                 </div>
 
                 <div class="vs-indicator">VS</div>
 
                 <div class="scheduled-player right">
-                    <div class="player-avatar-small">
-                        ${getPlayerInitials(match.player2_name || match.player2?.name || 'P2')}
-                    </div>
                     <div class="scheduled-player-details">
                         <div class="scheduled-player-name">${match.player2_name || match.player2?.name || 'Player 2'}</div>
-                        <div class="scheduled-player-rank">Rank #${match.player2_rank || '—'}</div>
                     </div>
                 </div>
             </div>
@@ -247,75 +229,43 @@ function createScheduledMatchCard(match) {
 
 // Create result card HTML (similar to results.js but adapted for matches page)
 function createResultCard(match) {
-    const matchDate = new Date(match.completedDate);
-    const formattedDate = matchDate.toLocaleDateString();
-    const formattedTime = matchDate.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true 
-    });
-    
-    const winner = match.winner;
-    const loser = match.loser;
-    const winnerScore = winner.id === match.player1.id ? match.player1Score : match.player2Score;
-    const loserScore = winner.id === match.player1.id ? match.player2Score : match.player1Score;
-    
-    // Determine if this was an upset
-    const isUpset = winner.rank > loser.rank && winner.rank && loser.rank;
-    const isRecentMatch = (new Date() - matchDate) < 24 * 60 * 60 * 1000; // Less than 24 hours
-    
+    if (!match || !match.winner_id) {
+        console.warn('Invalid match data:', match);
+        return '';
+    }
+
+    // Determine winner and loser from match data
+    const isPlayer1Winner = match.winner_id === match.player1_id || match.player1_score > match.player2_score;
+    const winnerName = isPlayer1Winner ? (match.player1_name || match.winner_name) : (match.player2_name || match.loser_name);
+    const loserName = isPlayer1Winner ? (match.player2_name || match.loser_name) : (match.player1_name || match.winner_name);
+    const winnerScore = isPlayer1Winner ? match.player1_score : match.player2_score;
+    const loserScore = isPlayer1Winner ? match.player2_score : match.player1_score;
+
     return `
-        <div class="result-card ${isUpset ? 'upset' : ''}">
-            ${isUpset || isRecentMatch ? `
-                <div class="result-badges">
-                    ${isUpset ? '<span class="badge upset-badge">UPSET</span>' : ''}
-                    ${isRecentMatch ? '<span class="badge recent-badge">RECENT</span>' : ''}
-                    <span class="badge time-badge">${getTimeAgo(matchDate)}</span>
-                </div>
-            ` : ''}
-            
-            <div class="result-header">
-                <div class="match-info">
-                    <span class="match-type">Regular Season</span>
-                    <span class="match-date">${formattedDate}</span>
-                </div>
-                <div class="match-duration">${formattedTime}</div>
-            </div>
-            
+        <div class="result-card">
             <div class="result-matchup">
                 <div class="player-result winner">
                     <div class="player-info">
-                        <div class="player-avatar ${isUpset && winner.rank > loser.rank ? 'upset-winner' : ''}">
-                            ${getPlayerInitials(winner.name)}
-                        </div>
                         <div class="player-details">
-                            <span class="player-name">${winner.name}</span>
-                            <span class="player-rank">${winner.rank ? `Rank #${winner.rank}` : 'Unranked'}</span>
+                            <span class="player-name">${winnerName}</span>
                         </div>
                     </div>
                     <div class="score-info">
                         <div class="final-score winner-score">${winnerScore}</div>
                     </div>
                 </div>
-                
+
                 <div class="vs-divider">
                     <span class="vs-text">DEFEATED</span>
-                    <div class="frame-scores">
-                        <span class="frame">${winnerScore}-${loserScore}</span>
-                    </div>
                 </div>
-                
+
                 <div class="player-result loser">
                     <div class="score-info">
                         <div class="final-score loser-score">${loserScore}</div>
                     </div>
                     <div class="player-info">
                         <div class="player-details">
-                            <span class="player-name">${loser.name}</span>
-                            <span class="player-rank">${loser.rank ? `Rank #${loser.rank}` : 'Unranked'}</span>
-                        </div>
-                        <div class="player-avatar">
-                            ${getPlayerInitials(loser.name)}
+                            <span class="player-name">${loserName}</span>
                         </div>
                     </div>
                 </div>

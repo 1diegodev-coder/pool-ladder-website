@@ -1,7 +1,7 @@
 // Pool Ladder Service Worker
 // Provides offline functionality and caching for PWA
 
-const CACHE_NAME = 'pool-ladder-v2.1.0';
+const CACHE_NAME = 'pool-ladder-v2.2.0';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline functionality
