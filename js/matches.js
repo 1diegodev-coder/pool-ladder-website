@@ -2,10 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAndDisplayMatches();
-    initializeMatchTabs();
     initializeFilters();
     initializeViewToggle();
-    
+
     console.log('Matches page initialized');
 });
 
@@ -85,69 +84,13 @@ async function loadAndDisplayMatches() {
     
     displayedScheduledMatches = [...allScheduledMatches];
     displayedCompletedMatches = [...allCompletedMatches];
-    
-    updateTabCounts();
-    renderCurrentTab();
+
+    // Render both sections
+    renderScheduledMatches();
+    renderCompletedMatches();
 }
 
-// Initialize tab switching
-function initializeMatchTabs() {
-    const tabs = document.querySelectorAll('.match-tab');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
-            switchTab(targetTab);
-        });
-    });
-}
-
-// Switch between tabs
-function switchTab(tabName) {
-    currentTab = tabName;
-    
-    // Update tab visual state
-    const tabs = document.querySelectorAll('.match-tab');
-    tabs.forEach(tab => {
-        if (tab.getAttribute('data-tab') === tabName) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
-    
-    // Show/hide content sections
-    const scheduledContent = document.getElementById('scheduled-content');
-    const resultsContent = document.getElementById('results-content');
-    
-    if (tabName === 'scheduled') {
-        scheduledContent.style.display = 'block';
-        resultsContent.style.display = 'none';
-    } else {
-        scheduledContent.style.display = 'none';
-        resultsContent.style.display = 'block';
-    }
-    
-    renderCurrentTab();
-}
-
-// Update tab counts
-function updateTabCounts() {
-    const scheduledCount = document.getElementById('scheduledCount');
-    const resultsCount = document.getElementById('resultsCount');
-    
-    if (scheduledCount) scheduledCount.textContent = allScheduledMatches.length;
-    if (resultsCount) resultsCount.textContent = allCompletedMatches.length;
-}
-
-// Render current tab content
-function renderCurrentTab() {
-    if (currentTab === 'scheduled') {
-        renderScheduledMatches();
-    } else {
-        renderCompletedMatches();
-    }
-}
+// Removed tab switching code - both sections now always visible
 
 // Render scheduled matches
 function renderScheduledMatches() {
@@ -292,87 +235,9 @@ function getTimeAgo(date) {
     return `${Math.ceil(diffDays / 30)} MONTHS AGO`;
 }
 
-// Initialize filters
+// Initialize filters (removed - no filter controls in current UI)
 function initializeFilters() {
-    const playerSearch = document.getElementById('playerSearch');
-    const timeFilter = document.getElementById('timeFilter');
-    
-    if (playerSearch) {
-        playerSearch.addEventListener('input', applyFilters);
-    }
-    
-    if (timeFilter) {
-        timeFilter.addEventListener('change', applyFilters);
-    }
-}
-
-// Apply filters to current tab
-function applyFilters() {
-    const playerSearch = document.getElementById('playerSearch')?.value.toLowerCase() || '';
-    const timeFilter = document.getElementById('timeFilter')?.value || 'all';
-    
-    if (currentTab === 'scheduled') {
-        displayedScheduledMatches = allScheduledMatches.filter(match => {
-            // Player name filter
-            if (playerSearch.trim() !== '') {
-                const hasPlayer = match.player1.name.toLowerCase().includes(playerSearch) || 
-                                match.player2.name.toLowerCase().includes(playerSearch);
-                if (!hasPlayer) return false;
-            }
-            
-            // Time filter for scheduled matches
-            if (timeFilter !== 'all') {
-                const matchDate = new Date(match.date + ' ' + match.time);
-                const now = new Date();
-                const daysDiff = Math.ceil((matchDate - now) / (1000 * 60 * 60 * 24));
-                
-                switch(timeFilter) {
-                    case 'week':
-                        if (daysDiff > 7 || daysDiff < -7) return false;
-                        break;
-                    case 'month':
-                        if (daysDiff > 30 || daysDiff < -30) return false;
-                        break;
-                }
-            }
-            
-            return true;
-        });
-        
-        renderScheduledMatches();
-    } else {
-        displayedCompletedMatches = allCompletedMatches.filter(match => {
-            // Player name filter
-            if (playerSearch.trim() !== '') {
-                const hasPlayer = match.player1.name.toLowerCase().includes(playerSearch) || 
-                                match.player2.name.toLowerCase().includes(playerSearch);
-                if (!hasPlayer) return false;
-            }
-            
-            // Time filter for completed matches
-            if (timeFilter !== 'all') {
-                const matchDate = new Date(match.completedDate);
-                const now = new Date();
-                const daysDiff = Math.ceil((now - matchDate) / (1000 * 60 * 60 * 24));
-                
-                switch(timeFilter) {
-                    case 'week':
-                        if (daysDiff > 7) return false;
-                        break;
-                    case 'month':
-                        if (daysDiff > 30) return false;
-                        break;
-                    case 'season':
-                        // All matches this season (for now, all matches)
-                        break;
-                }
-            }
-            
-            return true;
-        });
-        
-        renderCompletedMatches();
-    }
+    // Filter controls removed from UI
 }
 
 // Initialize view toggle
