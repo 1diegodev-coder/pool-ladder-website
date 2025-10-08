@@ -137,6 +137,7 @@
                 <button class="admin-tab active" data-tab="players">Players</button>
                 <button class="admin-tab" data-tab="matches">Matches</button>
                 <button class="admin-tab" data-tab="ladder">Ladder</button>
+                <button class="admin-tab" data-tab="data">Data</button>
             </div>
         </div>
     </section>
@@ -244,6 +245,31 @@
                             </ul>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Tab -->
+    <section class="admin-content" id="data-tab" style="display: none;">
+        <div class="container">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Data Management</h2>
+                </div>
+                <div class="data-management-actions">
+                    <button class="btn btn-primary" onclick="exportData()">Export All Data (JSON)</button>
+                    <div class="import-container">
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
+                        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Import All Data (JSON)</button>
+                    </div>
+                    <button class="btn btn-success" onclick="openPublishModal()">Publish Changes</button>
+                </div>
+                <div id="diff-preview" style="display: none;">
+                    <h3>Data Import Preview</h3>
+                    <pre id="diff-output"></pre>
+                    <button class="btn btn-success" onclick="confirmImport()">Confirm Import</button>
+                    <button class="btn btn-danger" onclick="cancelImport()">Cancel Import</button>
                 </div>
             </div>
         </div>
@@ -422,6 +448,27 @@
         </div>
     </div>
 
+    <!-- Publish Modal -->
+    <div class="modal" id="publishModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Publish Changes</h3>
+                <button class="modal-close" onclick="closePublishModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="admin-form" id="publishForm">
+                    <div class="form-group">
+                        <label>Commit Message *</label>
+                        <input type="text" name="commitMessage" class="form-input" placeholder="e.g., Update player rankings" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePublishModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="publishChanges()">Publish</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main admin script -->
     <script src="../js/admin.js"></script>
