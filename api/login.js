@@ -2,9 +2,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || 'defaulthash';
-const JWT_SECRET = process.env.JWT_SECRET || '';
-
 // Helper function to hash password with salt
 function hashPassword(password, salt) {
     return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
@@ -15,32 +12,45 @@ export default function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
-    
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
-    
+
     try {
+        // Debug: Re-read environment variables at runtime
+        const runtimePasswordHash = process.env.ADMIN_PASSWORD_HASH;
+        const runtimeJwtSecret = process.env.JWT_SECRET;
+
+        console.log('🔍 Runtime env check:', {
+            hasPasswordHash: !!runtimePasswordHash,
+            passwordHashLength: runtimePasswordHash?.length,
+            hasJwtSecret: !!runtimeJwtSecret,
+            jwtSecretLength: runtimeJwtSecret?.length,
+            allEnvKeys: Object.keys(process.env).filter(k => k.includes('ADMIN') || k.includes('JWT'))
+        });
+
         const { password } = req.body;
         
         if (!password) {
             return res.status(400).json({ error: 'Password is required' });
         }
 
-        if (!ADMIN_PASSWORD_HASH || ADMIN_PASSWORD_HASH === 'defaulthash') {
+        // Use runtime values instead of module-level constants
+        if (!runtimePasswordHash || runtimePasswordHash === 'defaulthash') {
             console.error('❌ ADMIN_PASSWORD_HASH not configured');
-            return res.status(503).json({ 
+            return res.status(503).json({
                 error: 'Server configuration incomplete',
                 details: 'Contact administrator to set up authentication'
             });
         }
 
-        if (!JWT_SECRET) {
+        if (!runtimeJwtSecret) {
             console.error('❌ JWT_SECRET not configured');
             return res.status(503).json({
                 error: 'Server configuration incomplete',
@@ -48,21 +58,21 @@ export default function handler(req, res) {
             });
         }
         
-        const [salt, storedHash] = ADMIN_PASSWORD_HASH.split(':');
+        const [salt, storedHash] = runtimePasswordHash.split(':');
         if (!salt || !storedHash) {
             return res.status(500).json({ error: 'Invalid password configuration' });
         }
-        
+
         const providedHash = hashPassword(password, salt);
-        
+
         if (providedHash === storedHash) {
             const token = jwt.sign(
-                { 
-                    role: 'admin', 
+                {
+                    role: 'admin',
                     timestamp: Date.now(),
-                    ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress 
-                }, 
-                JWT_SECRET, 
+                    ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+                },
+                runtimeJwtSecret,
                 { expiresIn: '24h' }
             );
             
