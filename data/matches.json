@@ -1,272 +1,332 @@
 [
   {
     "id": 16,
-    "player1_id": 5,
-    "player2_id": 12,
-    "player1_score": 7,
-    "player2_score": 5,
-    "winner_id": 5,
-    "match_date": "2025-09-21",
     "status": "completed",
-    "player1_name": "Diego Suarez",
-    "player2_name": "Jack Finch",
-    "match_time": "00:00:00",
-    "winner_name": null,
-    "loser_id": null,
-    "loser_name": null,
-    "created_at": "2025-09-20T14:50:40.769218+00:00",
-    "completed_at": "2025-10-07T09:22:16.322Z"
+    "date": "2025-09-21",
+    "time": "00:00:00",
+    "player1": {
+      "id": 5,
+      "name": "Diego Suarez"
+    },
+    "player2": {
+      "id": 12,
+      "name": "Jack Finch"
+    },
+    "player1Score": 7,
+    "player2Score": 5,
+    "winnerId": 5,
+    "winnerName": "Diego Suarez",
+    "loserId": 12,
+    "loserName": "Jack Finch",
+    "createdAt": "2025-09-20T14:50:40.769218+00:00",
+    "completedAt": "2025-10-07T09:22:16.322Z"
   },
   {
     "id": 21,
-    "player1_id": 15,
-    "player2_id": 11,
-    "player1_score": 4,
-    "player2_score": 7,
-    "winner_id": 11,
-    "match_date": "2025-09-20",
     "status": "completed",
-    "player1_name": "Tessa Davidson",
-    "player2_name": "Jack Sharpe",
-    "match_time": "00:00:00",
-    "winner_name": "Jack Sharpe",
-    "loser_id": 15,
-    "loser_name": "Tessa Davidson",
-    "created_at": "2025-09-20T19:16:46.777574+00:00",
-    "completed_at": "2025-10-08T22:00:19.107Z"
+    "date": "2025-09-20",
+    "time": "00:00:00",
+    "player1": {
+      "id": 15,
+      "name": "Tessa Davidson"
+    },
+    "player2": {
+      "id": 11,
+      "name": "Jack Sharpe"
+    },
+    "player1Score": 4,
+    "player2Score": 7,
+    "winnerId": 11,
+    "winnerName": "Jack Sharpe",
+    "loserId": 15,
+    "loserName": "Tessa Davidson",
+    "createdAt": "2025-09-20T19:16:46.777574+00:00",
+    "completedAt": "2025-10-08T22:00:19.107Z"
   },
   {
     "id": 20,
-    "player1_id": 19,
-    "player2_id": 18,
-    "player1_score": null,
-    "player2_score": null,
-    "winner_id": null,
-    "match_date": "2025-09-20",
     "status": "scheduled",
-    "player1_name": "Rowyn Moore",
-    "player2_name": "Trevor Ireland",
-    "match_time": "00:00:00",
-    "winner_name": null,
-    "loser_id": null,
-    "loser_name": null,
-    "created_at": "2025-09-20T19:16:18.588525+00:00",
-    "completed_at": null
+    "date": "2025-09-20",
+    "time": "00:00:00",
+    "player1": {
+      "id": 19,
+      "name": "Rowyn Moore"
+    },
+    "player2": {
+      "id": 18,
+      "name": "Trevor Ireland"
+    },
+    "player1Score": null,
+    "player2Score": null,
+    "winnerId": null,
+    "winnerName": null,
+    "loserId": null,
+    "loserName": null,
+    "createdAt": "2025-09-20T19:16:18.588525+00:00",
+    "completedAt": null
   },
   {
     "id": 19,
-    "player1_id": 14,
-    "player2_id": 13,
-    "player1_score": null,
-    "player2_score": null,
-    "winner_id": null,
-    "match_date": "2025-09-20",
     "status": "scheduled",
-    "player1_name": "Charlie Hayden",
-    "player2_name": "Greg Paynton-Moyses",
-    "match_time": "00:00:00",
-    "winner_name": null,
-    "loser_id": null,
-    "loser_name": null,
-    "created_at": "2025-09-20T19:15:02.335349+00:00",
-    "completed_at": null
+    "date": "2025-09-20",
+    "time": "00:00:00",
+    "player1": {
+      "id": 14,
+      "name": "Charlie Hayden"
+    },
+    "player2": {
+      "id": 13,
+      "name": "Greg Paynton-Moyses"
+    },
+    "player1Score": null,
+    "player2Score": null,
+    "winnerId": null,
+    "winnerName": null,
+    "loserId": null,
+    "loserName": null,
+    "createdAt": "2025-09-20T19:15:02.335349+00:00",
+    "completedAt": null
   },
   {
     "id": 18,
-    "player1_id": 6,
-    "player2_id": 16,
-    "player1_score": 7,
-    "player2_score": 6,
-    "winner_id": 6,
-    "match_date": "2025-09-20",
-    "status": "completed",
-    "player1_name": "James Ross",
-    "player2_name": "Tony Hicks",
-    "match_time": "00:00:00",
-    "winner_name": "James Ross",
-    "loser_id": 16,
-    "loser_name": "Tony Hicks",
-    "created_at": "2025-09-20T19:14:00.321557+00:00",
-    "completed_at": "2025-10-09T06:14:10.244Z"
+    "status": "scheduled",
+    "date": "2025-09-20",
+    "time": "00:00:00",
+    "player1": {
+      "id": 6,
+      "name": "James Ross"
+    },
+    "player2": {
+      "id": 16,
+      "name": "Tony Hicks"
+    },
+    "player1Score": null,
+    "player2Score": null,
+    "winnerId": null,
+    "winnerName": null,
+    "loserId": null,
+    "loserName": null,
+    "createdAt": "2025-09-20T19:14:00.321557+00:00",
+    "completedAt": null
   },
   {
     "id": 15,
-    "player1_id": 15,
-    "player2_id": 18,
-    "player1_score": 7,
-    "player2_score": 5,
-    "winner_id": 15,
-    "match_date": "2025-09-16",
     "status": "completed",
-    "player1_name": "Tessa Davidson",
-    "player2_name": "Trevor Ireland",
-    "match_time": "00:00:00",
-    "winner_name": "Tessa Davidson",
-    "loser_id": 18,
-    "loser_name": "Trevor Ireland",
-    "created_at": "2025-09-16T22:12:51.981441+00:00",
-    "completed_at": "2025-09-20T14:17:39.049+00:00"
+    "date": "2025-09-16",
+    "time": "00:00:00",
+    "player1": {
+      "id": 15,
+      "name": "Tessa Davidson"
+    },
+    "player2": {
+      "id": 18,
+      "name": "Trevor Ireland"
+    },
+    "player1Score": 7,
+    "player2Score": 5,
+    "winnerId": 15,
+    "winnerName": "Tessa Davidson",
+    "loserId": 18,
+    "loserName": "Trevor Ireland",
+    "createdAt": "2025-09-16T22:12:51.981441+00:00",
+    "completedAt": "2025-09-20T14:17:39.049+00:00"
   },
   {
     "id": 14,
-    "player1_id": 11,
-    "player2_id": 16,
-    "player1_score": 7,
-    "player2_score": 5,
-    "winner_id": 11,
-    "match_date": "2025-09-16",
     "status": "completed",
-    "player1_name": "Jack Sharpe",
-    "player2_name": "Tony Hicks",
-    "match_time": "00:00:00",
-    "winner_name": "Jack Sharpe",
-    "loser_id": 16,
-    "loser_name": "Tony Hicks",
-    "created_at": "2025-09-16T22:11:21.804923+00:00",
-    "completed_at": "2025-09-18T08:37:55.512+00:00"
+    "date": "2025-09-16",
+    "time": "00:00:00",
+    "player1": {
+      "id": 11,
+      "name": "Jack Sharpe"
+    },
+    "player2": {
+      "id": 16,
+      "name": "Tony Hicks"
+    },
+    "player1Score": 7,
+    "player2Score": 5,
+    "winnerId": 11,
+    "winnerName": "Jack Sharpe",
+    "loserId": 16,
+    "loserName": "Tony Hicks",
+    "createdAt": "2025-09-16T22:11:21.804923+00:00",
+    "completedAt": "2025-09-18T08:37:55.512+00:00"
   },
   {
     "id": 13,
-    "player1_id": 14,
-    "player2_id": 6,
-    "player1_score": 7,
-    "player2_score": 4,
-    "winner_id": 14,
-    "match_date": "2025-09-16",
     "status": "completed",
-    "player1_name": "Charlie Hayden",
-    "player2_name": "James Ross",
-    "match_time": "00:00:00",
-    "winner_name": "Charlie Hayden",
-    "loser_id": 6,
-    "loser_name": "James Ross",
-    "created_at": "2025-09-16T22:10:58.746143+00:00",
-    "completed_at": "2025-09-16T22:12:19.818+00:00"
+    "date": "2025-09-16",
+    "time": "00:00:00",
+    "player1": {
+      "id": 14,
+      "name": "Charlie Hayden"
+    },
+    "player2": {
+      "id": 6,
+      "name": "James Ross"
+    },
+    "player1Score": 7,
+    "player2Score": 4,
+    "winnerId": 14,
+    "winnerName": "Charlie Hayden",
+    "loserId": 6,
+    "loserName": "James Ross",
+    "createdAt": "2025-09-16T22:10:58.746143+00:00",
+    "completedAt": "2025-09-16T22:12:19.818+00:00"
   },
   {
     "id": 12,
-    "player1_id": 12,
-    "player2_id": 13,
-    "player1_score": 7,
-    "player2_score": 2,
-    "winner_id": 12,
-    "match_date": "2025-09-16",
     "status": "completed",
-    "player1_name": "Jack Finch",
-    "player2_name": "Greg Paynton-Moyses",
-    "match_time": "00:00:00",
-    "winner_name": "Jack Finch",
-    "loser_id": 13,
-    "loser_name": "Greg Paynton-Moyses",
-    "created_at": "2025-09-16T19:53:59.965193+00:00",
-    "completed_at": "2025-09-16T19:55:25.065+00:00"
+    "date": "2025-09-16",
+    "time": "00:00:00",
+    "player1": {
+      "id": 12,
+      "name": "Jack Finch"
+    },
+    "player2": {
+      "id": 13,
+      "name": "Greg Paynton-Moyses"
+    },
+    "player1Score": 7,
+    "player2Score": 2,
+    "winnerId": 12,
+    "winnerName": "Jack Finch",
+    "loserId": 13,
+    "loserName": "Greg Paynton-Moyses",
+    "createdAt": "2025-09-16T19:53:59.965193+00:00",
+    "completedAt": "2025-09-16T19:55:25.065+00:00"
   },
   {
     "id": 11,
-    "player1_id": 5,
-    "player2_id": 19,
-    "player1_score": 7,
-    "player2_score": 3,
-    "winner_id": 5,
-    "match_date": "2025-09-16",
     "status": "completed",
-    "player1_name": "Diego Suarez",
-    "player2_name": "Rowyn Moore",
-    "match_time": "00:00:00",
-    "winner_name": "Diego Suarez",
-    "loser_id": 19,
-    "loser_name": "Rowyn Moore",
-    "created_at": "2025-09-15T22:20:57.276851+00:00",
-    "completed_at": "2025-09-15T22:22:38.629+00:00"
+    "date": "2025-09-16",
+    "time": "00:00:00",
+    "player1": {
+      "id": 5,
+      "name": "Diego Suarez"
+    },
+    "player2": {
+      "id": 19,
+      "name": "Rowyn Moore"
+    },
+    "player1Score": 7,
+    "player2Score": 3,
+    "winnerId": 5,
+    "winnerName": "Diego Suarez",
+    "loserId": 19,
+    "loserName": "Rowyn Moore",
+    "createdAt": "2025-09-15T22:20:57.276851+00:00",
+    "completedAt": "2025-09-15T22:22:38.629+00:00"
   },
   {
     "id": 3,
-    "player1_id": 11,
-    "player2_id": 13,
-    "player1_score": 5,
-    "player2_score": 7,
-    "winner_id": 13,
-    "match_date": "2025-09-15",
     "status": "completed",
-    "player1_name": "Jack Sharpe",
-    "player2_name": "Greg Paynton-Moyses",
-    "match_time": "19:00:00",
-    "winner_name": "Greg Paynton-Moyses",
-    "loser_id": 11,
-    "loser_name": "Jack Sharpe",
-    "created_at": "2025-09-15T18:56:24.911923+00:00",
-    "completed_at": "2025-09-15T18:56:33.381+00:00"
+    "date": "2025-09-15",
+    "time": "19:00:00",
+    "player1": {
+      "id": 11,
+      "name": "Jack Sharpe"
+    },
+    "player2": {
+      "id": 13,
+      "name": "Greg Paynton-Moyses"
+    },
+    "player1Score": 5,
+    "player2Score": 7,
+    "winnerId": 13,
+    "winnerName": "Greg Paynton-Moyses",
+    "loserId": 11,
+    "loserName": "Jack Sharpe",
+    "createdAt": "2025-09-15T18:56:24.911923+00:00",
+    "completedAt": "2025-09-15T18:56:33.381+00:00"
   },
   {
     "id": 6,
-    "player1_id": 15,
-    "player2_id": 19,
-    "player1_score": 5,
-    "player2_score": 7,
-    "winner_id": 19,
-    "match_date": "2025-08-15",
     "status": "completed",
-    "player1_name": "Tessa Davidson",
-    "player2_name": "Rowyn Moore",
-    "match_time": "19:00:00",
-    "winner_name": "Rowyn Moore",
-    "loser_id": 15,
-    "loser_name": "Tessa Davidson",
-    "created_at": "2025-09-15T19:28:58.097633+00:00",
-    "completed_at": "2025-09-15T19:31:22.871+00:00"
+    "date": "2025-08-15",
+    "time": "19:00:00",
+    "player1": {
+      "id": 15,
+      "name": "Tessa Davidson"
+    },
+    "player2": {
+      "id": 19,
+      "name": "Rowyn Moore"
+    },
+    "player1Score": 5,
+    "player2Score": 7,
+    "winnerId": 19,
+    "winnerName": "Rowyn Moore",
+    "loserId": 15,
+    "loserName": "Tessa Davidson",
+    "createdAt": "2025-09-15T19:28:58.097633+00:00",
+    "completedAt": "2025-09-15T19:31:22.871+00:00"
   },
   {
     "id": 5,
-    "player1_id": 18,
-    "player2_id": 16,
-    "player1_score": 7,
-    "player2_score": 5,
-    "winner_id": 18,
-    "match_date": "2025-08-15",
     "status": "completed",
-    "player1_name": "Trevor Ireland",
-    "player2_name": "Tony Hicks",
-    "match_time": "19:00:00",
-    "winner_name": "Trevor Ireland",
-    "loser_id": 16,
-    "loser_name": "Tony Hicks",
-    "created_at": "2025-09-15T19:25:41.17926+00:00",
-    "completed_at": "2025-09-15T19:27:21.459+00:00"
+    "date": "2025-08-15",
+    "time": "19:00:00",
+    "player1": {
+      "id": 18,
+      "name": "Trevor Ireland"
+    },
+    "player2": {
+      "id": 16,
+      "name": "Tony Hicks"
+    },
+    "player1Score": 7,
+    "player2Score": 5,
+    "winnerId": 18,
+    "winnerName": "Trevor Ireland",
+    "loserId": 16,
+    "loserName": "Tony Hicks",
+    "createdAt": "2025-09-15T19:25:41.17926+00:00",
+    "completedAt": "2025-09-15T19:27:21.459+00:00"
   },
   {
     "id": 4,
-    "player1_id": 14,
-    "player2_id": 12,
-    "player1_score": 5,
-    "player2_score": 7,
-    "winner_id": 12,
-    "match_date": "2025-08-15",
     "status": "completed",
-    "player1_name": "Charlie Hayden",
-    "player2_name": "Jack Finch",
-    "match_time": "19:00:00",
-    "winner_name": "Jack Finch",
-    "loser_id": 14,
-    "loser_name": "Charlie Hayden",
-    "created_at": "2025-09-15T18:59:44.366473+00:00",
-    "completed_at": "2025-09-15T19:24:21.692+00:00"
+    "date": "2025-08-15",
+    "time": "19:00:00",
+    "player1": {
+      "id": 14,
+      "name": "Charlie Hayden"
+    },
+    "player2": {
+      "id": 12,
+      "name": "Jack Finch"
+    },
+    "player1Score": 5,
+    "player2Score": 7,
+    "winnerId": 12,
+    "winnerName": "Jack Finch",
+    "loserId": 14,
+    "loserName": "Charlie Hayden",
+    "createdAt": "2025-09-15T18:59:44.366473+00:00",
+    "completedAt": "2025-09-15T19:24:21.692+00:00"
   },
   {
     "id": 2,
-    "player1_id": 6,
-    "player2_id": 5,
-    "player1_score": 3,
-    "player2_score": 7,
-    "winner_id": 5,
-    "match_date": "2025-08-01",
     "status": "completed",
-    "player1_name": "James Ross",
-    "player2_name": "Diego Suarez",
-    "match_time": "19:00:00",
-    "winner_name": "Diego Suarez",
-    "loser_id": 6,
-    "loser_name": "James Ross",
-    "created_at": "2025-09-15T18:54:43.528079+00:00",
-    "completed_at": "2025-09-15T18:54:56.227+00:00"
+    "date": "2025-08-01",
+    "time": "19:00:00",
+    "player1": {
+      "id": 6,
+      "name": "James Ross"
+    },
+    "player2": {
+      "id": 5,
+      "name": "Diego Suarez"
+    },
+    "player1Score": 3,
+    "player2Score": 7,
+    "winnerId": 5,
+    "winnerName": "Diego Suarez",
+    "loserId": 6,
+    "loserName": "James Ross",
+    "createdAt": "2025-09-15T18:54:43.528079+00:00",
+    "completedAt": "2025-09-15T18:54:56.227+00:00"
   }
 ]

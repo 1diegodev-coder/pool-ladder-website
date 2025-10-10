@@ -11,6 +11,67 @@ document.addEventListener('DOMContentLoaded', function() {
 let allMatches = [];
 let displayedMatches = [];
 
+function normalizePlayer(player) {
+    if (!player) return null;
+
+    return {
+        id: Number(player.id),
+        name: player.name,
+        rank: Number.isFinite(player.rank) ? player.rank : parseInt(player.rank || '0', 10) || null,
+        wins: Number.isFinite(player.wins) ? player.wins : parseInt(player.wins || '0', 10) || 0,
+        losses: Number.isFinite(player.losses) ? player.losses : parseInt(player.losses || '0', 10) || 0,
+        points: Number.isFinite(player.points) ? player.points : parseInt(player.points || '0', 10) || 0
+    };
+}
+
+function normalizeMatch(match) {
+    if (!match) return null;
+
+    const player1Id = Number(match.player1?.id ?? match.player1_id ?? match.player1Id ?? 0) || null;
+    const player2Id = Number(match.player2?.id ?? match.player2_id ?? match.player2Id ?? 0) || null;
+
+    return {
+        id: Number(match.id),
+        status: match.status || 'scheduled',
+        date: match.date || match.match_date || '',
+        time: match.time || match.match_time || '00:00:00',
+        player1: {
+            id: player1Id,
+            name: match.player1?.name || match.player1_name || 'Player 1'
+        },
+        player2: {
+            id: player2Id,
+            name: match.player2?.name || match.player2_name || 'Player 2'
+        },
+        player1Score: normalizeScore(match.player1Score ?? match.player1_score),
+        player2Score: normalizeScore(match.player2Score ?? match.player2_score),
+        winnerId: match.winnerId != null ? Number(match.winnerId) : (match.winner_id != null ? Number(match.winner_id) : null),
+        winnerName: match.winnerName || match.winner_name || null,
+        loserId: match.loserId != null ? Number(match.loserId) : (match.loser_id != null ? Number(match.loser_id) : null),
+        loserName: match.loserName || match.loser_name || null,
+        createdAt: match.createdAt || match.created_at || match.created || null,
+        completedAt: match.completedAt || match.completed_at || match.completedDate || null
+    };
+}
+
+function normalizeScore(value) {
+    if (value === undefined || value === null || value === '') {
+        return null;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+function matchDateTime(match) {
+    if (match.completedAt) {
+        return match.completedAt;
+    }
+    if (match.date) {
+        return `${match.date} ${match.time || '00:00:00'}`;
+    }
+    return new Date().toISOString();
+}
+
 // Load completed matches from admin system
 function loadAndDisplayMatches() {
     const adminData = loadAdminData();
@@ -26,7 +87,11 @@ function loadAdminData() {
     try {
         const savedData = localStorage.getItem('poolLadderAdminData');
         if (savedData) {
-            return JSON.parse(savedData);
+            const parsed = JSON.parse(savedData);
+            return {
+                players: Array.isArray(parsed.players) ? parsed.players.map(normalizePlayer).filter(Boolean) : [],
+                matches: Array.isArray(parsed.matches) ? parsed.matches.map(normalizeMatch).filter(Boolean) : []
+            };
         }
     } catch (error) {
         console.error('Error loading admin data:', error);
@@ -38,12 +103,29 @@ function loadAdminData() {
 function getCompletedMatches(adminData) {
     const completedMatches = adminData.matches
         .filter(match => match.status === 'completed')
-        .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate)); // Most recent first
+        .sort((a, b) => new Date(matchDateTime(b)) - new Date(matchDateTime(a)));
     
     // Enrich matches with player rank information
     return completedMatches.map(match => {
         const player1 = adminData.players.find(p => p.id === match.player1.id);
         const player2 = adminData.players.find(p => p.id === match.player2.id);
+
+        const winnerIsPlayer1 = match.winnerId === match.player1.id;
+        const winner = winnerIsPlayer1 ? {
+            ...match.player1,
+            rank: player1 ? player1.rank : null
+        } : {
+            ...match.player2,
+            rank: player2 ? player2.rank : null
+        };
+
+        const loser = winnerIsPlayer1 ? {
+            ...match.player2,
+            rank: player2 ? player2.rank : null
+        } : {
+            ...match.player1,
+            rank: player1 ? player1.rank : null
+        };
         
         return {
             ...match,
@@ -56,7 +138,10 @@ function getCompletedMatches(adminData) {
                 ...match.player2,
                 rank: player2 ? player2.rank : null,
                 points: player2 ? player2.points : null
-            }
+            },
+            winner,
+            loser,
+            completedDate: match.completedAt || match.date
         };
     });
 }

@@ -15,18 +15,83 @@ let displayedScheduledMatches = [];
 let displayedCompletedMatches = [];
 let currentTab = 'scheduled';
 
+function normalizePlayer(player) {
+    if (!player) return null;
+
+    return {
+        id: Number(player.id),
+        name: player.name,
+        rank: Number.isFinite(player.rank) ? player.rank : parseInt(player.rank || '0', 10) || null,
+        status: player.status || 'active'
+    };
+}
+
+function normalizeMatch(match) {
+    if (!match) return null;
+
+    const player1Id = Number(match.player1?.id ?? match.player1_id ?? match.player1Id ?? 0) || null;
+    const player2Id = Number(match.player2?.id ?? match.player2_id ?? match.player2Id ?? 0) || null;
+
+    const normalized = {
+        id: Number(match.id),
+        status: match.status || 'scheduled',
+        date: match.date || match.match_date || '',
+        time: match.time || match.match_time || '00:00:00',
+        player1: {
+            id: player1Id,
+            name: match.player1?.name || match.player1_name || 'Player 1'
+        },
+        player2: {
+            id: player2Id,
+            name: match.player2?.name || match.player2_name || 'Player 2'
+        },
+        player1Score: normalizeScore(match.player1Score ?? match.player1_score),
+        player2Score: normalizeScore(match.player2Score ?? match.player2_score),
+        winnerId: match.winnerId != null ? Number(match.winnerId) : (match.winner_id != null ? Number(match.winner_id) : null),
+        winnerName: match.winnerName || match.winner_name || null,
+        loserId: match.loserId != null ? Number(match.loserId) : (match.loser_id != null ? Number(match.loser_id) : null),
+        loserName: match.loserName || match.loser_name || null,
+        createdAt: match.createdAt || match.created_at || match.created || null,
+        completedAt: match.completedAt || match.completed_at || match.completedDate || null
+    };
+
+    return normalized;
+}
+
+function normalizeScore(value) {
+    if (value === undefined || value === null || value === '') {
+        return null;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+function matchDateTime(match) {
+    if (match.completedAt) {
+        return match.completedAt;
+    }
+    if (match.date) {
+        return `${match.date} ${match.time || '00:00:00'}`;
+    }
+    return new Date().toISOString();
+}
+
 // Load data from JSON files
 async function loadAdminData() {
     try {
+        const timestamp = Date.now();
         const [playersRes, matchesRes] = await Promise.all([
-            fetch('/data/players.json'),
-            fetch('/data/matches.json')
+            fetch(`/data/players.json?v=${timestamp}`),
+            fetch(`/data/matches.json?v=${timestamp}`)
         ]);
 
-        const players = await playersRes.json();
-        const matches = await matchesRes.json();
+        const playersData = await playersRes.json();
+        const matchesData = await matchesRes.json();
 
-        return { players: players || [], matches: matches || [] };
+        return {
+            players: Array.isArray(playersData) ? playersData.map(normalizePlayer).filter(Boolean) : [],
+            matches: Array.isArray(matchesData) ? matchesData.map(normalizeMatch).filter(Boolean) : []
+        };
     } catch (error) {
         console.error('Error loading data from JSON files:', error);
         return { players: [], matches: [] };
@@ -41,44 +106,33 @@ async function loadAndDisplayMatches() {
     allScheduledMatches = adminData.matches
         .filter(match => match.status === 'scheduled')
         .sort((a, b) => {
-            const dateA = a.match_date || a.date;
-            const timeA = a.match_time || a.time;
-            const dateB = b.match_date || b.date;
-            const timeB = b.match_time || b.time;
-            return new Date(dateA + ' ' + timeA) - new Date(dateB + ' ' + timeB);
-        }); // Earliest first
+            const dateA = new Date(`${a.date} ${a.time || '00:00:00'}`);
+            const dateB = new Date(`${b.date} ${b.time || '00:00:00'}`);
+            return dateA - dateB;
+        });
     
     // Get completed matches and enrich with player data
     allCompletedMatches = adminData.matches
         .filter(match => match.status === 'completed')
         .sort((a, b) => {
-            const dateA = new Date(a.completed_at || a.completedDate);
-            const dateB = new Date(b.completed_at || b.completedDate);
-            return dateB - dateA; // Most recent first
+            const dateA = new Date(matchDateTime(a));
+            const dateB = new Date(matchDateTime(b));
+            return dateB - dateA;
         })
         .map(match => {
-            // Handle both database format and localStorage format
-            const player1Id = match.player1_id || match.player1?.id;
-            const player2Id = match.player2_id || match.player2?.id;
-            const player1 = adminData.players.find(p => p.id === player1Id);
-            const player2 = adminData.players.find(p => p.id === player2Id);
-            
+            const player1 = adminData.players.find(p => p.id === match.player1.id);
+            const player2 = adminData.players.find(p => p.id === match.player2.id);
+
             return {
                 ...match,
                 player1: {
-                    id: player1Id,
-                    name: match.player1_name || match.player1?.name || 'Player 1',
+                    ...match.player1,
                     rank: player1 ? player1.rank : null
                 },
                 player2: {
-                    id: player2Id,
-                    name: match.player2_name || match.player2?.name || 'Player 2',
+                    ...match.player2,
                     rank: player2 ? player2.rank : null
-                },
-                // Add compatibility fields
-                completedDate: match.completed_at || match.completedDate,
-                player1Score: match.player1_score || match.player1Score || 0,
-                player2Score: match.player2_score || match.player2Score || 0
+                }
             };
         });
     
@@ -130,31 +184,23 @@ function renderCompletedMatches() {
 
 // Create scheduled match card HTML
 function createScheduledMatchCard(match) {
-    // Handle both database format and localStorage format
-    const matchDateStr = match.match_date || match.date;
-    const matchTimeStr = match.match_time || match.time;
-    const matchDate = new Date(matchDateStr + ' ' + matchTimeStr);
-    const formattedDate = matchDate.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    });
-    const formattedTime = matchDate.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true 
-    });
-    
-    const isToday = new Date().toDateString() === matchDate.toDateString();
-    const isPast = matchDate < new Date();
-    
+    const scheduledDate = match.date ? new Date(`${match.date} ${match.time || '00:00:00'}`) : null;
+    const formattedDate = scheduledDate
+        ? scheduledDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+        : 'Date TBD';
+
     return `
         <div class="scheduled-match-card">
             <div class="match-players">
                 <div class="scheduled-player">
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player1_name || match.player1?.name || 'Player 1'}</div>
+                        <div class="scheduled-player-name">${match.player1?.name || 'Player 1'}</div>
+                        <div class="scheduled-player-date">${formattedDate}</div>
                     </div>
                 </div>
 
@@ -162,7 +208,7 @@ function createScheduledMatchCard(match) {
 
                 <div class="scheduled-player right">
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player2_name || match.player2?.name || 'Player 2'}</div>
+                        <div class="scheduled-player-name">${match.player2?.name || 'Player 2'}</div>
                     </div>
                 </div>
             </div>
@@ -172,17 +218,16 @@ function createScheduledMatchCard(match) {
 
 // Create result card HTML (similar to results.js but adapted for matches page)
 function createResultCard(match) {
-    if (!match || !match.winner_id) {
+    if (!match || match.winnerId == null) {
         console.warn('Invalid match data:', match);
         return '';
     }
 
-    // Determine winner and loser from match data
-    const isPlayer1Winner = match.winner_id === match.player1_id || match.player1_score > match.player2_score;
-    const winnerName = isPlayer1Winner ? (match.player1_name || match.winner_name) : (match.player2_name || match.loser_name);
-    const loserName = isPlayer1Winner ? (match.player2_name || match.loser_name) : (match.player1_name || match.winner_name);
-    const winnerScore = isPlayer1Winner ? match.player1_score : match.player2_score;
-    const loserScore = isPlayer1Winner ? match.player2_score : match.player1_score;
+    const isPlayer1Winner = match.winnerId === match.player1.id;
+    const winnerName = match.winnerName || (isPlayer1Winner ? match.player1.name : match.player2.name);
+    const loserName = match.loserName || (isPlayer1Winner ? match.player2.name : match.player1.name);
+    const winnerScore = isPlayer1Winner ? (match.player1Score ?? 0) : (match.player2Score ?? 0);
+    const loserScore = isPlayer1Winner ? (match.player2Score ?? 0) : (match.player1Score ?? 0);
 
     return `
         <div class="result-card">
@@ -282,7 +327,12 @@ async function showPlayerStatsModal(playerName) {
         match.player1.name === playerName || match.player2.name === playerName
     );
     
-    const wins = playerMatches.filter(match => match.winner.name === playerName).length;
+    const wins = playerMatches.filter(match => {
+        if (match.winnerId == null) return false;
+        const winnerIsPlayer1 = match.winnerId === match.player1.id;
+        const winnerName = match.winnerName || (winnerIsPlayer1 ? match.player1.name : match.player2.name);
+        return winnerName === playerName;
+    }).length;
     const losses = playerMatches.length - wins;
     
     alert(`Player Stats for ${playerName}\n\nRank: #${player.rank}\nWins: ${wins}\nLosses: ${losses}\nTotal Matches: ${playerMatches.length}`);

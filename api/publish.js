@@ -1,9 +1,34 @@
-const { Octokit } = require('@octokit/rest');
+import { Octokit } from '@octokit/rest';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    console.error('❌ JWT_SECRET not configured for publish endpoint');
+    return res.status(503).json({ error: 'Server configuration incomplete' });
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('❌ Unauthorized publish attempt - no token');
+    return res.status(401).json({ error: 'Unauthorized - JWT required' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role !== 'admin') {
+      console.log('❌ Unauthorized publish attempt - invalid role');
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    console.log('✅ Authenticated request from:', decoded.role);
+  } catch (error) {
+    console.log('❌ Invalid JWT:', error.message);
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
   try {

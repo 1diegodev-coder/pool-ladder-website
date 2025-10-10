@@ -25,58 +25,45 @@
     <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script>
-        // Admin panel authentication check
-        let isAuthenticated = false;
-        
-        function checkAuthentication() {
-            // Check if user logged in via login page
-            const authenticated = localStorage.getItem('admin_authenticated') === 'true';
-            const authTimestamp = localStorage.getItem('admin_auth_timestamp');
-            
-            if (authenticated && authTimestamp) {
-                const now = new Date().getTime();
-                const authTime = parseInt(authTimestamp);
-                const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
-                
-                if (now - authTime < sessionDuration) {
-                    // Valid session
-                    isAuthenticated = true;
-                    document.body.style.display = 'block';
-                    return true;
-                }
-            }
-            
-            // No valid session, try password prompt for direct access
-            return promptForPassword();
-        }
-        
-        function promptForPassword() {
-            const password = prompt('Enter admin password:');
-            if (password === 'poolladder2025') {
-                isAuthenticated = true;
-                document.body.style.display = 'block';
-                // Set authentication for consistency
-                const timestamp = new Date().getTime();
-                localStorage.setItem('admin_authenticated', 'true');
-                localStorage.setItem('admin_auth_timestamp', timestamp.toString());
-                localStorage.setItem('admin_user', 'admin');
-                return true;
-            } else if (password !== null) {
-                alert('Incorrect password. Access denied.');
-                window.location.href = '../index.html';
-                return false;
-            } else {
-                window.location.href = '../index.html';
-                return false;
-            }
+        function getTokenExpiration() {
+            const expiration = parseInt(localStorage.getItem('admin_jwt_exp') || '0', 10);
+            return Number.isNaN(expiration) ? 0 : expiration;
         }
 
-        // Check authentication on load
+        function hasValidSession() {
+            const token = localStorage.getItem('admin_jwt_token');
+            const expiration = getTokenExpiration();
+
+            if (!token || !expiration) {
+                return false;
+            }
+
+            if (Date.now() >= expiration) {
+                clearAdminSession();
+                return false;
+            }
+
+            return true;
+        }
+
+        function clearAdminSession() {
+            localStorage.removeItem('admin_jwt_token');
+            localStorage.removeItem('admin_jwt_exp');
+            localStorage.removeItem('admin_user');
+            localStorage.removeItem('admin_authenticated');
+            localStorage.removeItem('admin_auth_timestamp');
+        }
+
+        window.clearAdminSession = clearAdminSession;
+
         document.addEventListener('DOMContentLoaded', function() {
-            if (!checkAuthentication()) {
+            document.body.style.display = 'none';
+
+            if (!hasValidSession()) {
+                window.location.href = 'login.html';
                 return;
             }
-            // Show body after authentication check
+
             document.body.style.display = 'block';
         });
     </script>

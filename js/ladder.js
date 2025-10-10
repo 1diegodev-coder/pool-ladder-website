@@ -14,9 +14,10 @@ let displayedPlayers = [];
 // Load data from JSON files
 async function loadAdminData() {
     try {
+        const timestamp = Date.now();
         const [playersRes, matchesRes] = await Promise.all([
-            fetch('/data/players.json'),
-            fetch('/data/matches.json')
+            fetch(`/data/players.json?v=${timestamp}`),
+            fetch(`/data/matches.json?v=${timestamp}`)
         ]);
 
         const players = await playersRes.json();
@@ -291,4 +292,3 @@ function applySorting() {
     
     renderLadderTable();
 }
-

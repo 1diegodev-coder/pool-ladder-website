@@ -3,16 +3,11 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || 'defaulthash';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // Helper function to hash password with salt
 function hashPassword(password, salt) {
     return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-}
-
-// Helper function to generate salt
-function generateSalt() {
-    return crypto.randomBytes(32).toString('hex');
 }
 
 export default function handler(req, res) {
@@ -36,41 +31,23 @@ export default function handler(req, res) {
         if (!password) {
             return res.status(400).json({ error: 'Password is required' });
         }
-        
-        // For initial setup, if no hash is set, create one
-        if (ADMIN_PASSWORD_HASH === 'defaulthash') {
-            const defaultPassword = 'admin123'; // Change this!
-            const salt = generateSalt();
-            const hash = hashPassword(defaultPassword, salt);
-            console.log('⚠️  Default password setup detected!');
-            console.log('⚠️  Set ADMIN_PASSWORD_HASH environment variable to:', `${salt}:${hash}`);
-            console.log('⚠️  Default password is: admin123');
-            
-            // Verify against default password for initial setup
-            const providedHash = hashPassword(password, salt);
-            if (providedHash === hash) {
-                const token = jwt.sign(
-                    { 
-                        role: 'admin', 
-                        timestamp: Date.now(),
-                        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress 
-                    }, 
-                    JWT_SECRET, 
-                    { expiresIn: '24h' }
-                );
-                
-                return res.status(200).json({ 
-                    success: true, 
-                    token,
-                    message: 'Login successful (using default setup)',
-                    warning: 'Please set up proper environment variables'
-                });
-            } else {
-                return res.status(401).json({ error: 'Invalid password' });
-            }
+
+        if (!ADMIN_PASSWORD_HASH || ADMIN_PASSWORD_HASH === 'defaulthash') {
+            console.error('❌ ADMIN_PASSWORD_HASH not configured');
+            return res.status(503).json({ 
+                error: 'Server configuration incomplete',
+                details: 'Contact administrator to set up authentication'
+            });
+        }
+
+        if (!JWT_SECRET) {
+            console.error('❌ JWT_SECRET not configured');
+            return res.status(503).json({
+                error: 'Server configuration incomplete',
+                details: 'Contact administrator to set up authentication'
+            });
         }
         
-        // Production password verification
         const [salt, storedHash] = ADMIN_PASSWORD_HASH.split(':');
         if (!salt || !storedHash) {
             return res.status(500).json({ error: 'Invalid password configuration' });

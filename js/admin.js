@@ -7,6 +7,70 @@ let adminData = {
     config: {}
 };
 
+function normalizePlayerRecord(player) {
+    if (!player) return null;
+
+    return {
+        id: Number(player.id),
+        name: player.name,
+        rank: Number.isFinite(player.rank) ? player.rank : parseInt(player.rank || '0', 10) || 0,
+        wins: Number.isFinite(player.wins) ? player.wins : parseInt(player.wins || '0', 10) || 0,
+        losses: Number.isFinite(player.losses) ? player.losses : parseInt(player.losses || '0', 10) || 0,
+        status: player.status || 'active',
+        createdAt: player.createdAt || player.created_at || player.created || null,
+        lastActive: player.lastActive || player.last_active || null
+    };
+}
+
+function normalizeMatchRecord(match) {
+    if (!match) return null;
+
+    const player1Id = Number(match.player1?.id ?? match.player1_id ?? match.player1Id ?? 0) || null;
+    const player2Id = Number(match.player2?.id ?? match.player2_id ?? match.player2Id ?? 0) || null;
+
+    const player1Name = match.player1?.name ?? match.player1_name ?? 'Player 1';
+    const player2Name = match.player2?.name ?? match.player2_name ?? 'Player 2';
+
+    const player1Score = normalizeScore(match.player1Score ?? match.player1_score);
+    const player2Score = normalizeScore(match.player2Score ?? match.player2_score);
+
+    const winnerId = match.winnerId ?? match.winner_id ?? null;
+    const loserId = match.loserId ?? match.loser_id ?? null;
+
+    const normalized = {
+        id: Number(match.id),
+        status: match.status || 'scheduled',
+        date: match.date || match.match_date || '',
+        time: match.time || match.match_time || '00:00:00',
+        player1: {
+            id: player1Id,
+            name: player1Name
+        },
+        player2: {
+            id: player2Id,
+            name: player2Name
+        },
+        player1Score,
+        player2Score,
+        winnerId: winnerId != null ? Number(winnerId) : null,
+        winnerName: match.winnerName || match.winner_name || (winnerId === player1Id ? player1Name : winnerId === player2Id ? player2Name : null),
+        loserId: loserId != null ? Number(loserId) : null,
+        loserName: match.loserName || match.loser_name || (loserId === player1Id ? player1Name : loserId === player2Id ? player2Name : null),
+        createdAt: match.createdAt || match.created_at || match.created || null,
+        completedAt: match.completedAt || match.completed_at || match.completedDate || null
+    };
+
+    return normalized;
+}
+
+function normalizeScore(value) {
+    if (value === undefined || value === null || value === '') {
+        return null;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
 // Load data on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Admin panel initializing...');
@@ -49,14 +113,13 @@ function editMatch(matchId) {
     // Populate player dropdowns
     populateEditPlayerDropdowns();
     
-    // Handle both database format and localStorage format
-    const player1Id = match.player1_id || match.player1?.id;
-    const player2Id = match.player2_id || match.player2?.id;
-    const matchDate = match.match_date || match.date;
-    const player1Score = match.player1_score || match.player1Score || '';
-    const player2Score = match.player2_score || match.player2Score || '';
-    const player1Name = match.player1_name || match.player1?.name || 'Player 1';
-    const player2Name = match.player2_name || match.player2?.name || 'Player 2';
+    const player1Id = match.player1?.id ?? '';
+    const player2Id = match.player2?.id ?? '';
+    const matchDate = match.date || '';
+    const player1Score = match.player1Score ?? '';
+    const player2Score = match.player2Score ?? '';
+    const player1Name = match.player1?.name || 'Player 1';
+    const player2Name = match.player2?.name || 'Player 2';
     
     // Fill form with current match data
     form.querySelector('select[name="player1"]').value = player1Id;
@@ -128,8 +191,8 @@ async function saveMatchEdit() {
     const player2Id = parseInt(formData.get('player2'));
     const matchDate = formData.get('matchDate');
     const matchStatus = formData.get('matchStatus');
-    const player1Score = formData.get('player1Score');
-    const player2Score = formData.get('player2Score');
+    const player1ScoreValue = formData.get('player1Score');
+    const player2ScoreValue = formData.get('player2Score');
 
     // Validation
     if (!player1Id || !player2Id || !matchDate) {
@@ -151,20 +214,16 @@ async function saveMatchEdit() {
     }
     
     try {
-        // Prepare update data
-        const updateData = {
-            player1_id: player1Id,
-            player1_name: player1.name,
-            player2_id: player2Id,
-            player2_name: player2.name,
-            match_date: matchDate,
-            date: matchDate  // Update both fields for compatibility
-        };
+        let score1 = null;
+        let score2 = null;
+        let winnerId = null;
+        let winnerName = null;
+        let loserId = null;
+        let loserName = null;
         
-        // If match is completed and scores are provided, update scores too
-        if (matchStatus === 'completed' && player1Score && player2Score) {
-            const score1 = parseInt(player1Score);
-            const score2 = parseInt(player2Score);
+        if (matchStatus === 'completed' && player1ScoreValue && player2ScoreValue) {
+            score1 = parseInt(player1ScoreValue, 10);
+            score2 = parseInt(player2ScoreValue, 10);
             
             if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
                 alert('Please enter valid scores (numbers 0 or higher).');
@@ -177,37 +236,29 @@ async function saveMatchEdit() {
             }
             
             // Determine winner
-            const winnerId = score1 > score2 ? player1Id : player2Id;
-            const winnerName = score1 > score2 ? player1.name : player2.name;
-            const loserId = score1 > score2 ? player2Id : player1Id;
-            const loserName = score1 > score2 ? player2.name : player1.name;
-            
-            updateData.player1_score = score1;
-            updateData.player2_score = score2;
-            updateData.winner_id = winnerId;
-            updateData.winner_name = winnerName;
-            updateData.loser_id = loserId;
-            updateData.loser_name = loserName;
+            winnerId = score1 > score2 ? player1Id : player2Id;
+            winnerName = score1 > score2 ? player1.name : player2.name;
+            loserId = score1 > score2 ? player2Id : player1Id;
+            loserName = score1 > score2 ? player2.name : player1.name;
         }
         
-        // Update in database
-        if (false) { // poolDB removed
-            await poolDB.updateMatch(matchId, updateData);
-        } else {
-            // Fallback to localStorage
-            const match = adminData.matches.find(m => m.id === matchId);
-            if (match) {
-                Object.assign(match, {
-                    player1: { id: player1Id, name: player1.name },
-                    player2: { id: player2Id, name: player2.name },
-                    date: matchDate,
-                    ...(matchStatus === 'completed' && player1Score && player2Score ? {
-                        player1Score: parseInt(player1Score),
-                        player2Score: parseInt(player2Score)
-                    } : {})
-                });
-                saveAdminData();
-            }
+        const match = adminData.matches.find(m => m.id === matchId);
+        if (match) {
+            Object.assign(match, {
+                player1: { id: player1Id, name: player1.name },
+                player2: { id: player2Id, name: player2.name },
+                date: matchDate,
+                status: matchStatus,
+                time: match.time || '00:00:00',
+                player1Score: matchStatus === 'completed' ? score1 : null,
+                player2Score: matchStatus === 'completed' ? score2 : null,
+                winnerId: matchStatus === 'completed' ? winnerId : null,
+                winnerName: matchStatus === 'completed' ? winnerName : null,
+                loserId: matchStatus === 'completed' ? loserId : null,
+                loserName: matchStatus === 'completed' ? loserName : null,
+                completedAt: matchStatus === 'completed' ? new Date().toISOString() : null
+            });
+            saveAdminData();
         }
         
         // Refresh data and update display
@@ -230,15 +281,25 @@ async function saveMatchEdit() {
 async function loadAdminData() {
     console.log('📋 Loading admin data...');
 
+    const applyNormalization = data => {
+        return {
+            players: Array.isArray(data.players) ? data.players.map(normalizePlayerRecord).filter(Boolean) : [],
+            matches: Array.isArray(data.matches) ? data.matches.map(normalizeMatchRecord).filter(Boolean) : [],
+            config: data.config || {}
+        };
+    };
+
     // Try loading from localStorage first (for admin changes not yet published)
     const savedData = localStorage.getItem('poolLadderAdminData');
     if (savedData) {
         try {
-            adminData = JSON.parse(savedData);
+            const parsed = JSON.parse(savedData);
+            adminData = applyNormalization(parsed);
             console.log('✅ Loaded data from localStorage:', {
                 players: adminData.players.length,
                 matches: adminData.matches.length
             });
+            saveAdminData();
             return;
         } catch (error) {
             console.error('Error loading from localStorage:', error);
@@ -247,14 +308,23 @@ async function loadAdminData() {
 
     // If no localStorage data, fetch from JSON files
     try {
+        const timestamp = Date.now();
         const [playersRes, matchesRes] = await Promise.all([
-            fetch('/data/players.json'),
-            fetch('/data/matches.json')
+            fetch(`/data/players.json?v=${timestamp}`),
+            fetch(`/data/matches.json?v=${timestamp}`)
         ]);
 
         if (playersRes.ok && matchesRes.ok) {
-            adminData.players = await playersRes.json();
-            adminData.matches = await matchesRes.json();
+            const [playersData, matchesData] = await Promise.all([
+                playersRes.json(),
+                matchesRes.json()
+            ]);
+
+            adminData = applyNormalization({
+                players: playersData,
+                matches: matchesData,
+                config: {}
+            });
 
             console.log('✅ Loaded data from JSON files:', {
                 players: adminData.players.length,
@@ -353,54 +423,32 @@ async function addNewPlayer() {
     try {
         console.log('🎯 Starting to add new player:', playerName);
         
-        // Add to database
+        // Add to local data
         const newPlayerData = {
+            id: Date.now(),
             name: playerName,
             wins: 0,
             losses: 0,
-            status: 'active'
+            status: 'active',
+            rank: adminData.players.length + 1,
+            createdAt: new Date().toISOString(),
+            lastActive: new Date().toISOString()
         };
+
+        adminData.players.push(newPlayerData);
+        saveAdminData();
         
-        let addedPlayer;
-        console.log('🔍 Debug: window.poolDB exists?', !!window.poolDB);
+        console.log('✅ Player added successfully, refreshing data...');
         
-        if (false) { // poolDB removed
-            console.log('✅ Using poolDB to add player');
-            addedPlayer = await poolDB.addPlayer(newPlayerData);
-        } else {
-            console.log('⚠️ window.poolDB not found, using localStorage fallback');
-            // Fallback to localStorage
-            addedPlayer = {
-                id: Date.now(),
-                ...newPlayerData,
-                rank: adminData.players.length + 1,
-                created: new Date().toISOString(),
-                lastActive: new Date().toISOString()
-            };
-            adminData.players.push(addedPlayer);
-            saveAdminData();
-        }
+        await loadAdminData();
+        await renderPlayersTable();
+        await renderLadderTable();
+        await updateDashboardStats();
         
-        // Update local data and display
-        if (addedPlayer) {
-            console.log('✅ Player added successfully, refreshing data...');
-            
-            // Refresh data from database (this will get the latest from DB or localStorage)
-            await loadAdminData();
-            
-            // Update display
-            await renderPlayersTable();
-            await renderLadderTable();
-            await updateDashboardStats();
-            
-            // Close modal
-            closeAddPlayerModal();
-            
-            alert(`Player "${playerName}" added successfully!`);
-            console.log('✨ Player addition process completed successfully');
-        } else {
-            throw new Error('Failed to add player - no player data returned');
-        }
+        closeAddPlayerModal();
+        
+        alert(`Player "${playerName}" added successfully!`);
+        console.log('✨ Player addition process completed successfully');
     } catch (error) {
         console.error('❌ Error adding player:', error);
         alert('Error adding player. Please try again.');
@@ -439,19 +487,13 @@ async function renderPlayersTable() {
 async function removePlayer(playerId) {
     if (confirm('Are you sure you want to remove this player?')) {
         try {
-            if (false) { // poolDB removed
-                await poolDB.deletePlayer(playerId);
-            } else {
-                // Fallback to localStorage
-                adminData.players = adminData.players.filter(player => player.id !== playerId);
-                
-                // Recalculate ranks
-                adminData.players.forEach((player, index) => {
-                    player.rank = index + 1;
-                });
-                
-                saveAdminData();
-            }
+            adminData.players = adminData.players.filter(player => player.id !== playerId);
+            
+            adminData.players.forEach((player, index) => {
+                player.rank = index + 1;
+            });
+            
+            saveAdminData();
             
             // Refresh data and update display
             await loadAdminData();
@@ -575,12 +617,25 @@ function hideChangePasswordSuccess() {
 }
 
 // Logout function
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        // In a real app, this would clear sessions
-        alert('Logged out successfully!');
-        window.location.href = '../index.html';
+function logout(force = false) {
+    if (!force && !confirm('Are you sure you want to logout?')) {
+        return;
     }
+
+    try {
+        if (typeof clearAdminSession === 'function') {
+            clearAdminSession();
+        } else {
+            localStorage.removeItem('admin_jwt_token');
+            localStorage.removeItem('admin_jwt_exp');
+            localStorage.removeItem('admin_user');
+        }
+        localStorage.removeItem('poolLadderAdminData');
+    } catch (error) {
+        console.error('Error clearing admin session:', error);
+    }
+
+    window.location.href = 'login.html';
 }
 
 // Close modals when clicking outside
@@ -761,59 +816,34 @@ async function scheduleMatch() {
     }
     
     try {
-        // Create new match
-        const newMatchData = {
-            player1_id: player1.id,
-            player1_name: player1.name,
-            player2_id: player2.id,
-            player2_name: player2.name,
-            match_date: matchDate,
-            match_time: '00:00:00',  // Default time for database compatibility
-            status: 'scheduled'
+        const newMatch = {
+            id: Date.now(),
+            status: 'scheduled',
+            date: matchDate,
+            time: '00:00:00',
+            player1: {
+                id: player1.id,
+                name: player1.name
+            },
+            player2: {
+                id: player2.id,
+                name: player2.name
+            },
+            player1Score: null,
+            player2Score: null,
+            winnerId: null,
+            winnerName: null,
+            loserId: null,
+            loserName: null,
+            createdAt: new Date().toISOString(),
+            completedAt: null
         };
 
-        console.log('💾 Attempting to save match:', newMatchData);
+        console.log('💾 Saving match to local storage:', newMatch);
 
-        let matchSaved = false;
-
-        if (false) { // poolDB removed
-            try {
-                console.log('🗄️ Trying to save to database...');
-                await poolDB.addMatch(newMatchData);
-                console.log('✅ Match saved to database successfully');
-                matchSaved = true;
-            } catch (dbError) {
-                console.error('❌ Database save failed:', dbError);
-                console.log('🔄 Falling back to localStorage...');
-            }
-        }
-
-        if (!matchSaved) {
-            // Fallback to localStorage
-            console.log('💾 Saving to localStorage...');
-            const newMatch = {
-                id: Date.now(),
-                player1_id: player1.id,
-                player1_name: player1.name,
-                player2_id: player2.id,
-                player2_name: player2.name,
-                player1: {
-                    id: player1.id,
-                    name: player1.name
-                },
-                player2: {
-                    id: player2.id,
-                    name: player2.name
-                },
-                date: matchDate,
-                match_date: matchDate,
-                status: 'scheduled',
-                created: new Date().toISOString()
-            };
-            adminData.matches.push(newMatch);
-            saveAdminData();
-            console.log('✅ Match saved to localStorage successfully');
-        }
+        adminData.matches.push(newMatch);
+        saveAdminData();
+        console.log('✅ Match saved to local storage successfully');
 
         // Refresh data and update display
         console.log('🔄 Refreshing display...');
@@ -849,10 +879,9 @@ async function renderScheduledMatches() {
     }
     
     scheduledSection.innerHTML = scheduledMatches.map(match => {
-        // Handle both database format and localStorage format
-        const player1Name = match.player1_name || match.player1?.name || 'Unknown Player';
-        const player2Name = match.player2_name || match.player2?.name || 'Unknown Player';
-        const matchDate = match.match_date || match.date;
+        const player1Name = match.player1?.name || 'Unknown Player';
+        const player2Name = match.player2?.name || 'Unknown Player';
+        const matchDate = match.date || 'TBD';
 
         return `
             <div class="match-card">
@@ -885,11 +914,10 @@ async function recordMatchResult(matchId) {
     const match = adminData.matches.find(m => m.id === matchId);
     if (!match) return;
     
-    // Handle both database format and localStorage format
-    const player1Name = match.player1_name || match.player1?.name || 'Player 1';
-    const player2Name = match.player2_name || match.player2?.name || 'Player 2';
-    const player1Id = match.player1_id || match.player1?.id;
-    const player2Id = match.player2_id || match.player2?.id;
+    const player1Name = match.player1?.name || 'Player 1';
+    const player2Name = match.player2?.name || 'Player 2';
+    const player1Id = match.player1?.id;
+    const player2Id = match.player2?.id;
     
     // Get scores from both players
     const player1Score = prompt(`Enter score for ${player1Name}:`, '0');
@@ -919,27 +947,15 @@ async function recordMatchResult(matchId) {
         const loserId = score1 > score2 ? player2Id : player1Id;
         const loserName = score1 > score2 ? player2Name : player1Name;
         
-        // Update match in database
-        const matchUpdates = {
-            status: 'completed',
-            player1_score: score1,
-            player2_score: score2,
-            winner_id: winnerId,
-            winner_name: winnerName,
-            loser_id: loserId,
-            loser_name: loserName,
-            completed_at: new Date().toISOString()
-        };
-        
-        // Update match in localStorage
+        // Update match record
         match.status = 'completed';
-        match.player1_score = score1;
-        match.player2_score = score2;
-        match.winner_id = winnerId;
-        match.winner_name = winnerName;
-        match.loser_id = loserId;
-        match.loser_name = loserName;
-        match.completed_at = new Date().toISOString();
+        match.player1Score = score1;
+        match.player2Score = score2;
+        match.winnerId = winnerId;
+        match.winnerName = winnerName;
+        match.loserId = loserId;
+        match.loserName = loserName;
+        match.completedAt = new Date().toISOString();
         saveAdminData();
         
         // Update player stats
@@ -965,28 +981,13 @@ async function updatePlayerStats(winnerId, loserId) {
     
     if (winner && loser) {
         try {
-            // Update win/loss records
-            const winnerUpdates = {
-                wins: (winner.wins || 0) + 1,
-                last_active: new Date().toISOString()
-            };
-            
-            const loserUpdates = {
-                losses: (loser.losses || 0) + 1,
-                last_active: new Date().toISOString()
-            };
-            
-            if (false) { // poolDB removed
-                await poolDB.updatePlayer(winnerId, winnerUpdates);
-                await poolDB.updatePlayer(loserId, loserUpdates);
-            } else {
-                // Fallback to localStorage
-                winner.wins = winnerUpdates.wins;
-                winner.lastActive = winnerUpdates.last_active;
-                loser.losses = loserUpdates.losses;
-                loser.lastActive = loserUpdates.last_active;
-                saveAdminData();
-            }
+            winner.wins = (winner.wins || 0) + 1;
+            winner.lastActive = new Date().toISOString();
+
+            loser.losses = (loser.losses || 0) + 1;
+            loser.lastActive = new Date().toISOString();
+
+            saveAdminData();
         } catch (error) {
             console.error('Error updating player stats:', error);
             throw error;
@@ -1022,11 +1023,11 @@ async function renderRecentResults() {
     const completedMatches = adminData.matches
         .filter(match => match.status === 'completed')
         .sort((a, b) => {
-            const dateA = new Date(a.completed_at || a.completedDate);
-            const dateB = new Date(b.completed_at || b.completedDate);
+            const dateA = new Date(a.completedAt || a.date);
+            const dateB = new Date(b.completedAt || b.date);
             return dateB - dateA; // Most recent first
         })
-        .slice(0, 10); // Show only last 10 matches
+        .slice(0, 10);
     
     if (completedMatches.length === 0) {
         recentSection.innerHTML = `
@@ -1038,16 +1039,15 @@ async function renderRecentResults() {
     }
     
     recentSection.innerHTML = completedMatches.map(match => {
-        // Handle both database format and localStorage format
-        const completedDate = match.completed_at || match.completedDate;
-        const player1Name = match.player1_name || match.player1?.name || 'Player 1';
-        const player2Name = match.player2_name || match.player2?.name || 'Player 2';
-        const player1Score = match.player1_score || match.player1Score || 0;
-        const player2Score = match.player2_score || match.player2Score || 0;
-        const winnerId = match.winner_id || match.winner?.id;
-        const player1Id = match.player1_id || match.player1?.id;
-        const player2Id = match.player2_id || match.player2?.id;
-        
+        const completedDate = match.completedAt || match.date;
+        const player1Name = match.player1?.name || 'Player 1';
+        const player2Name = match.player2?.name || 'Player 2';
+        const player1Score = match.player1Score ?? 0;
+        const player2Score = match.player2Score ?? 0;
+        const winnerId = match.winnerId;
+        const player1Id = match.player1?.id;
+        const player2Id = match.player2?.id;
+
         return `
             <div class="result-card">
                 <div class="result-header">
@@ -1211,16 +1211,7 @@ async function movePlayerUp(playerId) {
         player.rank = playerAbove.rank;
         playerAbove.rank = tempRank;
 
-        // Save to both database and localStorage
-        await saveAdminData();
-        if (false) { // poolDB removed
-            try {
-                await poolDB.updatePlayer(player.id, { rank: player.rank });
-                await poolDB.updatePlayer(playerAbove.id, { rank: playerAbove.rank });
-            } catch (error) {
-                console.error('Error updating player ranks in database:', error);
-            }
-        }
+        saveAdminData();
 
         renderLadderTable();
         renderPlayersTable();
@@ -1240,16 +1231,7 @@ async function movePlayerDown(playerId) {
         player.rank = playerBelow.rank;
         playerBelow.rank = tempRank;
 
-        // Save to both database and localStorage
-        await saveAdminData();
-        if (false) { // poolDB removed
-            try {
-                await poolDB.updatePlayer(player.id, { rank: player.rank });
-                await poolDB.updatePlayer(playerBelow.id, { rank: playerBelow.rank });
-            } catch (error) {
-                console.error('Error updating player ranks in database:', error);
-            }
-        }
+        saveAdminData();
 
         renderLadderTable();
         renderPlayersTable();
@@ -1290,112 +1272,16 @@ function resetLadder() {
     }
 }
 
-// Save current rankings to database
+// Save current rankings locally
 async function saveRankings() {
-    console.log('💾 Starting save rankings process with batch update strategy...');
-
     if (!adminData.players || adminData.players.length === 0) {
         alert('No players to save rankings for.');
         return;
     }
 
     try {
-        // Show progress notification
-        showNotification('Saving rankings to database...', 'info');
-
-        console.log('🔍 Database check - poolDB:', !!window.poolDB, 'supabase ready:', window.poolDB?.checkSupabaseReady());
-
-        if (window.poolDB && window.poolDB.checkSupabaseReady()) {
-            // Use batch update to avoid unique constraint conflicts
-            console.log('🔄 Using batch update strategy for rankings...');
-
-            // Step 1: Set all ranks to negative values temporarily to avoid conflicts
-            const tempUpdates = adminData.players.map(player => ({
-                id: player.id,
-                rank: -(player.rank), // Negative rank temporarily
-                last_active: new Date().toISOString()
-            }));
-
-            console.log('🔄 Step 1: Setting temporary negative ranks...');
-
-            for (const update of tempUpdates) {
-                try {
-                    // Use direct REST API call with correct credentials
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${update.id}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        },
-                        body: JSON.stringify({
-                            rank: update.rank,
-                            last_active: update.last_active
-                        })
-                    });
-
-                    if (!response.ok) {
-                        console.warn(`⚠️ Temp update failed for player ${update.id}: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.warn(`⚠️ Temp update failed for player ${update.id}:`, error);
-                }
-            }
-
-            // Step 2: Set correct positive ranks
-            console.log('🔄 Step 2: Setting final positive ranks...');
-            let successCount = 0;
-            let failureCount = 0;
-
-            for (const player of adminData.players) {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${player.id}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        },
-                        body: JSON.stringify({
-                            rank: player.rank,
-                            last_active: new Date().toISOString()
-                        })
-                    });
-
-                    if (response.ok) {
-                        console.log(`✅ Saved ranking for ${player.name}: #${player.rank}`);
-                        successCount++;
-                    } else {
-                        console.error(`❌ Failed to save ranking for ${player.name}: ${response.status}`);
-                        failureCount++;
-                    }
-                } catch (error) {
-                    console.error(`❌ Failed to save ranking for ${player.name}:`, error);
-                    failureCount++;
-                }
-            }
-
-            // Show results
-            const message = failureCount > 0
-                ? `Rankings saved! ${successCount} successful, ${failureCount} failed.`
-                : `All rankings saved successfully! (${successCount} players)`;
-
-            showNotification(message, failureCount > 0 ? 'warning' : 'success');
-
-            if (failureCount === 0) {
-                showNotification('Rankings are now synced to the public ladder page!', 'success');
-            }
-
-            console.log(`🎉 Save rankings completed: ${successCount} successful, ${failureCount} failed`);
-
-        } else {
-            console.log('💾 No database connection, saving to localStorage only');
-            showNotification('Rankings saved to local storage. Database connection not available.', 'info');
-        }
-
-        // Also save to localStorage as backup
-        await saveAdminData();
-
+        saveAdminData();
+        showNotification('Rankings saved locally. Publish to push updates live.', 'success');
     } catch (error) {
         console.error('❌ Critical error saving rankings:', error);
         alert(`Error saving rankings: ${error.message}`);
@@ -1466,11 +1352,19 @@ async function publishChanges() {
         return;
     }
 
+    const token = localStorage.getItem('admin_jwt_token');
+    if (!token) {
+        alert('Session expired. Please log in again.');
+        logout(true);
+        return;
+    }
+
     try {
         const response = await fetch('/api/publish', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 commitMessage: commitMessage,
@@ -1483,12 +1377,29 @@ async function publishChanges() {
             })
         });
 
+        if (response.status === 401) {
+            alert('Session expired. Please log in again.');
+            logout(true);
+            return;
+        }
+
         const result = await response.json();
 
         if (response.ok) {
             showNotification('✅ Changes published successfully!', 'success');
             closePublishModal();
             console.log('✅ Publish result:', result);
+
+            localStorage.removeItem('poolLadderAdminData');
+
+            setTimeout(async () => {
+                await loadAdminData();
+                await renderPlayersTable();
+                await renderScheduledMatches();
+                await renderRecentResults();
+                await renderLadderTable();
+                await updateDashboardStats();
+            }, 2000);
         } else {
             throw new Error(result.error || 'Publish failed');
         }
@@ -1921,15 +1832,3 @@ adminStyles.textContent = `
     }
 `;
 document.head.appendChild(adminStyles);
-
-
-// Logout function
-function logout() {
-    // Clear authentication
-    localStorage.removeItem('admin_authenticated');
-    localStorage.removeItem('admin_auth_timestamp');
-    localStorage.removeItem('admin_user');
-    
-    // Redirect to home page
-    window.location.href = '../index.html';
-}

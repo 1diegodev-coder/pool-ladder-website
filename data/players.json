@@ -6,8 +6,8 @@
     "wins": 3,
     "losses": 0,
     "status": "active",
-    "created_at": "2025-09-15T18:05:56.407668+00:00",
-    "last_active": "2025-10-07T09:22:16.322Z"
+    "createdAt": "2025-09-15T18:05:56.407668+00:00",
+    "lastActive": "2025-10-07T09:22:16.322Z"
   },
   {
     "id": 12,
@@ -16,91 +16,87 @@
     "wins": 2,
     "losses": 1,
     "status": "active",
-    "created_at": "2025-09-15T18:49:11.795845+00:00",
-    "last_active": "2025-10-07T09:22:16.322Z"
-  },
-  {
-    "id": 11,
-    "name": "Jack Sharpe",
-    "rank": 3,
-    "wins": 2,
-    "losses": 1,
-    "status": "active",
-    "created_at": "2025-09-15T18:48:56.03123+00:00",
-    "last_active": "2025-09-18T08:37:55.733+00:00",
-    "lastActive": "2025-10-08T22:00:19.108Z"
+    "createdAt": "2025-09-15T18:49:11.795845+00:00",
+    "lastActive": "2025-10-07T09:22:16.322Z"
   },
   {
     "id": 13,
     "name": "Greg Paynton-Moyses",
-    "rank": 4,
+    "rank": 3,
     "wins": 1,
     "losses": 1,
     "status": "active",
-    "created_at": "2025-09-15T18:49:25.802562+00:00",
-    "last_active": "2025-09-16T19:55:27.571+00:00"
+    "createdAt": "2025-09-15T18:49:25.802562+00:00",
+    "lastActive": "2025-09-16T19:55:27.571+00:00"
   },
   {
     "id": 18,
     "name": "Trevor Ireland",
-    "rank": 5,
+    "rank": 4,
     "wins": 1,
     "losses": 1,
     "status": "active",
-    "created_at": "2025-09-15T18:58:51.425505+00:00",
-    "last_active": "2025-09-20T14:17:39.345+00:00"
+    "createdAt": "2025-09-15T18:58:51.425505+00:00",
+    "lastActive": "2025-09-20T14:17:39.345+00:00"
   },
   {
     "id": 19,
     "name": "Rowyn Moore",
-    "rank": 6,
+    "rank": 5,
     "wins": 1,
     "losses": 1,
     "status": "active",
-    "created_at": "2025-09-15T18:59:02.656239+00:00",
-    "last_active": "2025-09-16T15:24:51.873+00:00"
-  },
-  {
-    "id": 14,
-    "name": "Charlie Hayden",
-    "rank": 7,
-    "wins": 1,
-    "losses": 1,
-    "status": "active",
-    "created_at": "2025-09-15T18:49:51.879434+00:00",
-    "last_active": "2025-09-16T22:12:20.115+00:00"
-  },
-  {
-    "id": 15,
-    "name": "Tessa Davidson",
-    "rank": 8,
-    "wins": 1,
-    "losses": 2,
-    "status": "active",
-    "created_at": "2025-09-15T18:50:09.409386+00:00",
-    "last_active": "2025-09-20T14:17:39.345+00:00",
-    "lastActive": "2025-10-08T22:00:19.108Z"
+    "createdAt": "2025-09-15T18:59:02.656239+00:00",
+    "lastActive": "2025-09-16T15:24:51.873+00:00"
   },
   {
     "id": 6,
     "name": "James Ross",
+    "rank": 6,
+    "wins": 0,
+    "losses": 2,
+    "status": "active",
+    "createdAt": "2025-09-15T18:08:03.719652+00:00",
+    "lastActive": "2025-09-16T22:12:20.115+00:00"
+  },
+  {
+    "id": 11,
+    "name": "Jack Sharpe",
+    "rank": 7,
+    "wins": 2,
+    "losses": 1,
+    "status": "active",
+    "createdAt": "2025-09-15T18:48:56.03123+00:00",
+    "lastActive": "2025-09-18T08:37:55.733+00:00"
+  },
+  {
+    "id": 14,
+    "name": "Charlie Hayden",
+    "rank": 8,
+    "wins": 1,
+    "losses": 1,
+    "status": "active",
+    "createdAt": "2025-09-15T18:49:51.879434+00:00",
+    "lastActive": "2025-09-16T22:12:20.115+00:00"
+  },
+  {
+    "id": 15,
+    "name": "Tessa Davidson",
     "rank": 9,
     "wins": 1,
     "losses": 2,
     "status": "active",
-    "created_at": "2025-09-15T18:08:03.719652+00:00",
-    "last_active": "2025-09-16T22:12:20.115+00:00",
-    "lastActive": "2025-10-09T06:14:10.244Z"
+    "createdAt": "2025-09-15T18:50:09.409386+00:00",
+    "lastActive": "2025-09-20T14:17:39.345+00:00"
   },
   {
     "id": 16,
     "name": "Tony Hicks",
     "rank": 10,
     "wins": 0,
-    "losses": 3,
+    "losses": 2,
     "status": "active",
-    "created_at": "2025-09-15T18:50:21.027261+00:00",
-    "last_active": "2025-09-18T08:37:55.733+00:00",
-    "lastActive": "2025-10-09T06:14:10.244Z"
+    "createdAt": "2025-09-15T18:50:21.027261+00:00",
+    "lastActive": "2025-09-18T08:37:55.733+00:00"
   }
 ]
