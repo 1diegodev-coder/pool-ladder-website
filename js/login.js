@@ -63,10 +63,24 @@ async function handleLogin(e) {
             body: JSON.stringify({ password })
         });
 
-        const result = await response.json();
+        const rawBody = await response.text();
+        let result = null;
 
-        if (!response.ok || !result.token) {
-            throw new Error(result.error || 'Invalid username or password. Please try again.');
+        if (rawBody) {
+            try {
+                result = JSON.parse(rawBody);
+            } catch (parseError) {
+                console.warn('Login response was not JSON:', parseError);
+            }
+        }
+
+        if (response.status === 405) {
+            throw new Error('Login endpoint is unavailable in this static preview. Start the dev server with `npm run dev` to use admin login.');
+        }
+
+        if (!response.ok || !result || !result.token) {
+            const fallback = (result && result.error) || rawBody || 'Invalid username or password. Please try again.';
+            throw new Error(fallback);
         }
 
         storeAuthentication(result.token, username || 'admin');

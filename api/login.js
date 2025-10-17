@@ -7,7 +7,50 @@ function hashPassword(password, salt) {
     return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
 }
 
-export default function handler(req, res) {
+async function parseRequestBody(req) {
+    // Vercel may provide the parsed body, a JSON string, or nothing at all.
+    if (req.body) {
+        if (Buffer.isBuffer(req.body)) {
+            try {
+                return JSON.parse(req.body.toString('utf8'));
+            } catch (error) {
+                console.error('Login parse error: invalid buffer body');
+                return null;
+            }
+        }
+
+        if (typeof req.body === 'object') {
+            return req.body;
+        }
+
+        if (typeof req.body === 'string') {
+            try {
+                return JSON.parse(req.body);
+            } catch (error) {
+                console.error('Login parse error: invalid JSON string body');
+                return null;
+            }
+        }
+    }
+
+    let rawBody = '';
+    for await (const chunk of req) {
+        rawBody += chunk;
+    }
+
+    if (!rawBody) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(rawBody);
+    } catch (error) {
+        console.error('Login parse error: invalid JSON payload', error);
+        return null;
+    }
+}
+
+export default async function handler(req, res) {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -23,6 +66,13 @@ export default function handler(req, res) {
     }
 
     try {
+        const body = await parseRequestBody(req);
+
+        if (!body || typeof body !== 'object') {
+            return res.status(400).json({ error: 'Invalid request payload' });
+        }
+
+        const { password } = body;
         // Debug: Re-read environment variables at runtime
         const runtimePasswordHash = process.env.ADMIN_PASSWORD_HASH;
         const runtimeJwtSecret = process.env.JWT_SECRET;
@@ -35,8 +85,6 @@ export default function handler(req, res) {
             allEnvKeys: Object.keys(process.env).filter(k => k.includes('ADMIN') || k.includes('JWT'))
         });
 
-        const { password } = req.body;
-        
         if (!password) {
             return res.status(400).json({ error: 'Password is required' });
         }
