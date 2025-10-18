@@ -20,9 +20,19 @@
     "lastActive": "2025-10-07T09:22:16.322Z"
   },
   {
+    "id": 11,
+    "name": "Jack Sharpe",
+    "rank": 3,
+    "wins": 2,
+    "losses": 1,
+    "status": "active",
+    "createdAt": "2025-09-15T18:48:56.03123+00:00",
+    "lastActive": "2025-09-18T08:37:55.733+00:00"
+  },
+  {
     "id": 13,
     "name": "Greg Paynton-Moyses",
-    "rank": 3,
+    "rank": 4,
     "wins": 1,
     "losses": 1,
     "status": "active",
@@ -32,7 +42,7 @@
   {
     "id": 18,
     "name": "Trevor Ireland",
-    "rank": 4,
+    "rank": 5,
     "wins": 1,
     "losses": 1,
     "status": "active",
@@ -42,7 +52,7 @@
   {
     "id": 19,
     "name": "Rowyn Moore",
-    "rank": 5,
+    "rank": 6,
     "wins": 1,
     "losses": 1,
     "status": "active",
@@ -50,34 +60,24 @@
     "lastActive": "2025-09-16T15:24:51.873+00:00"
   },
   {
-    "id": 6,
-    "name": "James Ross",
-    "rank": 6,
-    "wins": 1,
-    "losses": 2,
-    "status": "active",
-    "createdAt": "2025-09-15T18:08:03.719652+00:00",
-    "lastActive": "2025-10-18T07:27:57.161Z"
-  },
-  {
-    "id": 11,
-    "name": "Jack Sharpe",
-    "rank": 7,
-    "wins": 2,
-    "losses": 1,
-    "status": "active",
-    "createdAt": "2025-09-15T18:48:56.03123+00:00",
-    "lastActive": "2025-09-18T08:37:55.733+00:00"
-  },
-  {
     "id": 14,
     "name": "Charlie Hayden",
-    "rank": 8,
+    "rank": 7,
     "wins": 1,
     "losses": 1,
     "status": "active",
     "createdAt": "2025-09-15T18:49:51.879434+00:00",
     "lastActive": "2025-09-16T22:12:20.115+00:00"
+  },
+  {
+    "id": 6,
+    "name": "James Ross",
+    "rank": 8,
+    "wins": 1,
+    "losses": 2,
+    "status": "active",
+    "createdAt": "2025-09-15T18:08:03.719652+00:00",
+    "lastActive": "2025-10-18T07:27:57.161Z"
   },
   {
     "id": 15,
