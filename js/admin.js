@@ -278,8 +278,8 @@ async function saveMatchEdit() {
 }
 
 // Data persistence
-async function loadAdminData() {
-    console.log('📋 Loading admin data...');
+async function loadAdminData(forceRefresh = false) {
+    console.log('📋 Loading admin data...' + (forceRefresh ? ' (Force refresh from server)' : ''));
 
     const applyNormalization = data => {
         return {
@@ -289,24 +289,30 @@ async function loadAdminData() {
         };
     };
 
-    // Try loading from localStorage first (for admin changes not yet published)
-    const savedData = localStorage.getItem('poolLadderAdminData');
-    if (savedData) {
-        try {
-            const parsed = JSON.parse(savedData);
-            adminData = applyNormalization(parsed);
-            console.log('✅ Loaded data from localStorage:', {
-                players: adminData.players.length,
-                matches: adminData.matches.length
-            });
-            saveAdminData();
-            return;
-        } catch (error) {
-            console.error('Error loading from localStorage:', error);
+    // If forceRefresh is true, skip localStorage and fetch fresh data from server
+    if (!forceRefresh) {
+        // Try loading from localStorage first (for admin changes not yet published)
+        const savedData = localStorage.getItem('poolLadderAdminData');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                adminData = applyNormalization(parsed);
+                console.log('✅ Loaded data from localStorage:', {
+                    players: adminData.players.length,
+                    matches: adminData.matches.length
+                });
+                saveAdminData();
+                return;
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
         }
+    } else {
+        console.log('🔄 Forcing refresh - clearing localStorage cache');
+        localStorage.removeItem('poolLadderAdminData');
     }
 
-    // If no localStorage data, fetch from JSON files
+    // If no localStorage data or forceRefresh, fetch from JSON files
     try {
         const timestamp = Date.now();
         const [playersRes, matchesRes] = await Promise.all([
@@ -1236,6 +1242,30 @@ async function movePlayerDown(playerId) {
         renderLadderTable();
         renderPlayersTable();
         showNotification(`${player.name} moved down to rank #${player.rank}`, 'info');
+    }
+}
+
+// Refresh data from server (bypass localStorage cache)
+async function refreshFromServer() {
+    console.log('🔄 Refreshing data from server...');
+    showNotification('Refreshing data from server...', 'info');
+
+    try {
+        // Force reload from server, bypassing localStorage
+        await loadAdminData(true);
+
+        // Re-render all tables to show fresh data
+        await renderPlayersTable();
+        await renderScheduledMatches();
+        await renderRecentResults();
+        await renderLadderTable();
+        await updateDashboardStats();
+
+        showNotification('✅ Data refreshed from server successfully!', 'success');
+        console.log('✅ Refresh complete');
+    } catch (error) {
+        console.error('❌ Error refreshing data:', error);
+        showNotification('❌ Failed to refresh data from server', 'error');
     }
 }
 
