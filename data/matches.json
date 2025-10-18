@@ -89,7 +89,7 @@
   },
   {
     "id": 18,
-    "status": "scheduled",
+    "status": "completed",
     "date": "2025-09-20",
     "time": "00:00:00",
     "player1": {
@@ -100,14 +100,14 @@
       "id": 16,
       "name": "Tony Hicks"
     },
-    "player1Score": null,
-    "player2Score": null,
-    "winnerId": null,
-    "winnerName": null,
-    "loserId": null,
-    "loserName": null,
+    "player1Score": 7,
+    "player2Score": 6,
+    "winnerId": 6,
+    "winnerName": "James Ross",
+    "loserId": 16,
+    "loserName": "Tony Hicks",
     "createdAt": "2025-09-20T19:14:00.321557+00:00",
-    "completedAt": null
+    "completedAt": "2025-10-18T07:27:57.160Z"
   },
   {
     "id": 15,
