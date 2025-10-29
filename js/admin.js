@@ -966,11 +966,13 @@ async function recordMatchResult(matchId) {
         
         // Update player stats
         await updatePlayerStats(winnerId, loserId);
-        
+
         // Refresh data and update display
         await loadAdminData();
         await renderScheduledMatches();
         await renderRecentResults();
+        await renderLadderTable();
+        await renderPlayersTable();
         await updateDashboardStats();
         
         alert(`Match result recorded:\n${player1Name}: ${score1}\n${player2Name}: ${score2}\n\nWinner: ${winnerName}`);
