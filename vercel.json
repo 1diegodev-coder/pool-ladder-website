@@ -2,30 +2,37 @@
   "version": 2,
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": ".",
-  "routes": [
+  "headers": [
     {
-      "src": "/admin",
-      "dest": "/pages/admin.html"
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/pages/admin.html"
     },
     {
-      "src": "/ladder",
-      "dest": "/pages/ladder.html"
+      "source": "/ladder",
+      "destination": "/pages/ladder.html"
     },
     {
-      "src": "/matches",
-      "dest": "/pages/matches.html"
+      "source": "/matches",
+      "destination": "/pages/matches.html"
     },
     {
-      "src": "/login",
-      "dest": "/pages/login.html"
+      "source": "/login",
+      "destination": "/pages/login.html"
     },
     {
-      "src": "/rules",
-      "dest": "/pages/rules.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/rules",
+      "destination": "/pages/rules.html"
     }
   ]
 }
