@@ -134,12 +134,45 @@ export default async function handler(req, res) {
 
     console.log('✅ Published successfully:', newCommit.sha);
 
+    // Trigger Vercel deployment to reflect changes
+    let deploymentStatus = 'pending';
+    try {
+      if (process.env.VERCEL_DEPLOY_HOOK_URL) {
+        console.log('🚀 Triggering Vercel deployment...');
+        const deployRes = await fetch(process.env.VERCEL_DEPLOY_HOOK_URL, {
+          method: 'POST'
+        });
+
+        if (deployRes.ok) {
+          deploymentStatus = 'triggered';
+          console.log('✅ Vercel deployment triggered successfully');
+        } else {
+          console.warn('⚠️ Failed to trigger Vercel deployment:', deployRes.status);
+          deploymentStatus = 'failed';
+        }
+      } else {
+        console.warn('⚠️ VERCEL_DEPLOY_HOOK_URL not configured - skipping deployment trigger');
+        deploymentStatus = 'skipped';
+      }
+    } catch (deployError) {
+      console.error('❌ Error triggering deployment:', deployError);
+      deploymentStatus = 'error';
+    }
+
     return res.status(200).json({
       success: true,
       commit: {
         sha: newCommit.sha,
         message: commitMessage,
         url: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}`
+      },
+      deployment: {
+        status: deploymentStatus,
+        message: deploymentStatus === 'triggered'
+          ? 'Changes will be live in 1-2 minutes'
+          : deploymentStatus === 'skipped'
+          ? 'Deployment hook not configured. Changes committed but not deployed.'
+          : 'Deployment trigger failed. You may need to manually deploy.'
       }
     });
 

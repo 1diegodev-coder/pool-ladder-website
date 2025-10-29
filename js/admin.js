@@ -1415,20 +1415,31 @@ async function publishChanges() {
         const result = await response.json();
 
         if (response.ok) {
-            showNotification('✅ Changes published successfully!', 'success');
+            let message = '✅ Changes published successfully!';
+            if (result.deployment) {
+                message += '\n' + result.deployment.message;
+            }
+            showNotification(message, 'success');
             closePublishModal();
             console.log('✅ Publish result:', result);
 
             localStorage.removeItem('poolLadderAdminData');
 
+            // Wait longer if deployment was triggered to allow Vercel to deploy
+            const waitTime = result.deployment?.status === 'triggered' ? 90000 : 2000;
+
             setTimeout(async () => {
-                await loadAdminData();
+                await loadAdminData(true); // Force refresh from server
                 await renderPlayersTable();
                 await renderScheduledMatches();
                 await renderRecentResults();
                 await renderLadderTable();
                 await updateDashboardStats();
-            }, 2000);
+            }, waitTime);
+
+            if (result.deployment?.status === 'triggered') {
+                alert('Changes published successfully!\n\nThe website will be updated in 1-2 minutes. The page will automatically refresh to show the live data.');
+            }
         } else {
             throw new Error(result.error || 'Publish failed');
         }
