@@ -126,9 +126,13 @@ function hideLoading(button) {
 
 function showError(message) {
     const errorMessage = document.getElementById('errorMessage');
+    if (!errorMessage) {
+        console.error('Error message element not found');
+        return;
+    }
     errorMessage.textContent = message;
     errorMessage.style.display = 'block';
-    
+
     errorMessage.style.animation = 'none';
     errorMessage.offsetHeight;
     errorMessage.style.animation = 'shake 0.5s ease-in-out';
@@ -136,6 +140,7 @@ function showError(message) {
 
 function hideError() {
     const errorMessage = document.getElementById('errorMessage');
+    if (!errorMessage) return;
     errorMessage.style.display = 'none';
 }
 
