@@ -89,7 +89,7 @@
   },
   {
     "id": 18,
-    "status": "completed",
+    "status": "scheduled",
     "date": "2025-09-20",
     "time": "00:00:00",
     "player1": {
@@ -100,14 +100,14 @@
       "id": 16,
       "name": "Tony Hicks"
     },
-    "player1Score": 7,
-    "player2Score": 6,
-    "winnerId": 6,
-    "winnerName": "James Ross",
-    "loserId": 16,
-    "loserName": "Tony Hicks",
+    "player1Score": null,
+    "player2Score": null,
+    "winnerId": null,
+    "winnerName": null,
+    "loserId": null,
+    "loserName": null,
     "createdAt": "2025-09-20T19:14:00.321557+00:00",
-    "completedAt": "2025-10-29T14:23:28.879Z"
+    "completedAt": null
   },
   {
     "id": 15,
@@ -328,27 +328,5 @@
     "loserName": "James Ross",
     "createdAt": "2025-09-15T18:54:43.528079+00:00",
     "completedAt": "2025-09-15T18:54:56.227+00:00"
-  },
-  {
-    "id": 1761747835602,
-    "status": "completed",
-    "date": "2025-10-28",
-    "time": "00:00:00",
-    "player1": {
-      "id": 5,
-      "name": "Diego Suarez"
-    },
-    "player2": {
-      "id": 11,
-      "name": "Jack Sharpe"
-    },
-    "player1Score": 2,
-    "player2Score": 7,
-    "winnerId": 11,
-    "winnerName": "Jack Sharpe",
-    "loserId": 5,
-    "loserName": "Diego Suarez",
-    "createdAt": "2025-10-29T14:23:55.602Z",
-    "completedAt": "2025-10-29T14:24:04.378Z"
   }
 ]
