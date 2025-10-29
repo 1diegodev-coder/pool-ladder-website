@@ -1089,15 +1089,15 @@ async function renderLadderTable() {
     if (adminData.players.length === 0) {
         ladderTableBody.innerHTML = `
             <tr class="no-players-row">
-                <td colspan="6" class="text-center">No players in the ladder yet. Add players in the Players tab.</td>
+                <td colspan="4" class="text-center">No players in the ladder yet. Add players in the Players tab.</td>
             </tr>
         `;
         return;
     }
-    
+
     // Sort players by rank
     const sortedPlayers = adminData.players.sort((a, b) => a.rank - b.rank);
-    
+
     ladderTableBody.innerHTML = sortedPlayers.map(player => `
         <tr class="ladder-row" draggable="true" data-player-id="${player.id}">
             <td class="rank-cell">
@@ -1112,9 +1112,6 @@ async function renderLadderTable() {
             <td class="record-cell">
                 <span class="wins">${player.wins || 0}W</span>
                 <span class="losses">${player.losses || 0}L</span>
-            </td>
-            <td class="last-active-cell">
-                ${player.lastActive ? new Date(player.lastActive).toLocaleDateString() : 'Never'}
             </td>
             <td class="actions-cell">
                 <button class="btn btn-sm btn-outline" onclick="movePlayerUp(${player.id})" ${player.rank === 1 ? 'disabled' : ''}>↑</button>
