@@ -1415,13 +1415,16 @@ async function publishChanges() {
         const result = await response.json();
 
         if (response.ok) {
+            console.log('✅ Publish result:', result);
+            console.log('📊 Deployment status:', result.deployment?.status);
+            console.log('📊 Deployment message:', result.deployment?.message);
+
             let message = '✅ Changes published successfully!';
             if (result.deployment) {
                 message += '\n' + result.deployment.message;
             }
             showNotification(message, 'success');
             closePublishModal();
-            console.log('✅ Publish result:', result);
 
             localStorage.removeItem('poolLadderAdminData');
 
