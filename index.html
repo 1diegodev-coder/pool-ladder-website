@@ -25,6 +25,9 @@
     <!-- Preload critical fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
     <!-- Load fonts asynchronously for better performance -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;900&family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -43,14 +46,14 @@
                 <div class="logo-icon">🎱</div>
                 <span class="logo-text">The Pool Ladder</span>
             </div>
-            <nav class="nav">
-                <a href="index.html" class="nav-link active">Home</a>
+            <nav class="nav" aria-label="Primary navigation">
+                <a href="index.html" class="nav-link active" aria-current="page">Home</a>
                 <a href="pages/ladder.html" class="nav-link">Ladder</a>
                 <a href="pages/matches.html" class="nav-link">Matches</a>
-                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link">Rules</a>
+                <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link" rel="noopener noreferrer">Rules</a>
             </nav>
             <div class="user-actions">
-                <a href="pages/login.html" class="admin-link">Admin</a>
+                <a href="pages/login.html" class="admin-link" aria-label="Admin login">Admin</a>
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileNav">
                     <span></span>
                     <span></span>
@@ -61,12 +64,12 @@
     </header>
 
     <!-- Mobile Navigation Overlay -->
-    <nav class="mobile-nav" id="mobileNav" role="navigation" aria-label="Main navigation">
-        <a href="index.html" class="nav-link active" onclick="closeMobileMenu()">Home</a>
+    <nav class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation">
+        <a href="index.html" class="nav-link active" onclick="closeMobileMenu()" aria-current="page">Home</a>
         <a href="pages/ladder.html" class="nav-link" onclick="closeMobileMenu()">Ladder</a>
         <a href="pages/matches.html" class="nav-link" onclick="closeMobileMenu()">Matches</a>
-        <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link" onclick="closeMobileMenu()">Rules</a>
-        <a href="pages/login.html" class="admin-link" onclick="closeMobileMenu()">Admin</a>
+        <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" class="nav-link" onclick="closeMobileMenu()" rel="noopener noreferrer">Rules</a>
+        <a href="pages/login.html" class="admin-link" onclick="closeMobileMenu()" aria-label="Admin login">Admin</a>
     </nav>
 
     <!-- Hero Section -->
@@ -83,13 +86,13 @@
     </section>
 
     <!-- Quick Links Section -->
-    <section class="quick-links">
+    <section class="quick-links" aria-label="Quick access links">
         <div class="container">
             <div class="links-grid stagger-animation">
-                <a href="pages/ladder.html" class="link-card">
+                <a href="pages/ladder.html" class="link-card" aria-label="View player rankings">
                     <h3>View Rankings</h3>
                 </a>
-                <a href="pages/matches.html" class="link-card">
+                <a href="pages/matches.html" class="link-card" aria-label="View match center">
                     <h3>Match Center</h3>
                 </a>
             </div>
@@ -97,13 +100,13 @@
     </section>
 
     <!-- Call to Action -->
-    <section class="cta">
+    <section class="cta" aria-label="Join the league">
         <div class="container">
             <div class="cta-content">
                 <h2>JOIN THE 2026 LEAGUE</h2>
                 <div class="cta-buttons">
-                    <button class="btn btn-primary btn-large" onclick="openJoinModal()">APPLY TO JOIN</button>
-                    <a href="pages/rules.html" class="btn btn-outline btn-large">View Rules</a>
+                    <button class="btn btn-primary btn-large" onclick="openJoinModal()" aria-label="Open application form to join the league">APPLY TO JOIN</button>
+                    <a href="pages/rules.html" class="btn btn-outline btn-large" aria-label="View league rules and regulations">View Rules</a>
                 </div>
             </div>
         </div>
@@ -120,7 +123,7 @@
                 </div>
                 <div class="footer-section">
                     <h4>Quick Links</h4>
-                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank">Rules</a>
+                    <a href="https://www.ultimatepoolgroup.com/rules" target="_blank" rel="noopener noreferrer">Rules</a>
                     <a href="pages/ladder.html">Rankings</a>
                     <a href="pages/matches.html">Matches</a>
                 </div>
