@@ -1,5 +1,8 @@
 // Results Page JavaScript - Loads real match data from admin system
 
+// Import HTML escaping utility for XSS protection
+import { escapeHTML } from './utils/escapeHTML.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     loadAndDisplayMatches();
     initializeResultsFilters();
@@ -213,7 +216,7 @@ function createMatchCard(match) {
                             ${getPlayerInitials(winner.name)}
                         </div>
                         <div class="player-details">
-                            <span class="player-name">${winner.name}</span>
+                            <span class="player-name">${escapeHTML(winner.name)}</span>
                             <span class="player-rank">${winner.rank ? `Rank #${winner.rank}` : 'Unranked'}</span>
                         </div>
                     </div>
@@ -237,7 +240,7 @@ function createMatchCard(match) {
                     </div>
                     <div class="player-info">
                         <div class="player-details">
-                            <span class="player-name">${loser.name}</span>
+                            <span class="player-name">${escapeHTML(loser.name)}</span>
                             <span class="player-rank">${loser.rank ? `Rank #${loser.rank}` : 'Unranked'}</span>
                         </div>
                         <div class="player-avatar">

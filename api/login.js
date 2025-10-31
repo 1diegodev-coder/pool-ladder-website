@@ -2,6 +2,49 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
+// Rate limiting storage (in-memory, works for serverless with low cold-start rate)
+const loginAttempts = new Map();
+
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes in milliseconds
+const MAX_ATTEMPTS = 5; // Maximum attempts per window
+
+// Helper function to check and update rate limit
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const attempts = loginAttempts.get(ip) || [];
+    
+    // Remove attempts older than the rate limit window
+    const recentAttempts = attempts.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    
+    // Check if rate limit exceeded
+    if (recentAttempts.length >= MAX_ATTEMPTS) {
+        const oldestAttempt = Math.min(...recentAttempts);
+        const timeUntilReset = Math.ceil((oldestAttempt + RATE_LIMIT_WINDOW - now) / 1000 / 60);
+        return {
+            limited: true,
+            message: `Too many login attempts. Please try again in ${timeUntilReset} minute${timeUntilReset !== 1 ? 's' : ''}.`
+        };
+    }
+    
+    // Add current attempt and update storage
+    recentAttempts.push(now);
+    loginAttempts.set(ip, recentAttempts);
+    
+    // Clean up old entries periodically (simple memory management)
+    if (loginAttempts.size > 1000) {
+        const entriesToDelete = [];
+        for (const [key, value] of loginAttempts.entries()) {
+            if (value.every(timestamp => now - timestamp > RATE_LIMIT_WINDOW)) {
+                entriesToDelete.push(key);
+            }
+        }
+        entriesToDelete.forEach(key => loginAttempts.delete(key));
+    }
+    
+    return { limited: false };
+}
+
 // Helper function to hash password with salt
 function hashPassword(password, salt) {
     return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
@@ -63,6 +106,22 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Get client IP address
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || 
+                     req.headers['x-real-ip'] || 
+                     req.connection?.remoteAddress || 
+                     'unknown';
+
+    // Check rate limit
+    const rateLimitResult = checkRateLimit(clientIp);
+    if (rateLimitResult.limited) {
+        console.log(`🚫 Rate limit exceeded for IP: ${clientIp}`);
+        return res.status(429).json({ 
+            error: rateLimitResult.message,
+            retryAfter: RATE_LIMIT_WINDOW / 1000 // seconds
+        });
     }
 
     try {

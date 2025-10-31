@@ -1,5 +1,8 @@
 // Matches Page JavaScript - Combines schedule and results functionality
 
+// Import HTML escaping utility for XSS protection
+import { escapeHTML } from './utils/escapeHTML.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAndDisplayMatches();
     initializeFilters();
@@ -199,7 +202,7 @@ function createScheduledMatchCard(match) {
             <div class="match-players">
                 <div class="scheduled-player">
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player1?.name || 'Player 1'}</div>
+                        <div class="scheduled-player-name">${escapeHTML(match.player1?.name || 'Player 1')}</div>
                         <div class="scheduled-player-date">${formattedDate}</div>
                     </div>
                 </div>
@@ -208,7 +211,7 @@ function createScheduledMatchCard(match) {
 
                 <div class="scheduled-player right">
                     <div class="scheduled-player-details">
-                        <div class="scheduled-player-name">${match.player2?.name || 'Player 2'}</div>
+                        <div class="scheduled-player-name">${escapeHTML(match.player2?.name || 'Player 2')}</div>
                     </div>
                 </div>
             </div>
@@ -224,8 +227,8 @@ function createResultCard(match) {
     }
 
     const isPlayer1Winner = match.winnerId === match.player1.id;
-    const winnerName = match.winnerName || (isPlayer1Winner ? match.player1.name : match.player2.name);
-    const loserName = match.loserName || (isPlayer1Winner ? match.player2.name : match.player1.name);
+    const winnerName = escapeHTML(match.winnerName || (isPlayer1Winner ? match.player1.name : match.player2.name));
+    const loserName = escapeHTML(match.loserName || (isPlayer1Winner ? match.player2.name : match.player1.name));
     const winnerScore = isPlayer1Winner ? (match.player1Score ?? 0) : (match.player2Score ?? 0);
     const loserScore = isPlayer1Winner ? (match.player2Score ?? 0) : (match.player1Score ?? 0);
 

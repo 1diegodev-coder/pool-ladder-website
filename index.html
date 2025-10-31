@@ -33,8 +33,11 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Skip to main content link for keyboard navigation -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    
     <!-- Header Section -->
-    <header class="header">
+    <header class="header" role="banner">
         <div class="container">
             <div class="logo">
                 <div class="logo-icon">🎱</div>
@@ -67,6 +70,7 @@
     </nav>
 
     <!-- Hero Section -->
+    <main id="main-content" role="main">
     <section class="hero">
         <div class="hero-background"></div>
         <div class="container">
@@ -105,8 +109,10 @@
         </div>
     </section>
 
+    </main>
+    
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
@@ -130,26 +136,26 @@
     </footer>
 
     <!-- Join Competition Modal -->
-    <div class="modal" id="joinModal">
+    <div class="modal" id="joinModal" role="dialog" aria-modal="true" aria-labelledby="joinModalTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>League Application</h3>
-                <button class="modal-close" onclick="closeJoinModal()">&times;</button>
+                <h3 id="joinModalTitle">League Application</h3>
+                <button class="modal-close" onclick="closeJoinModal()" aria-label="Close application form">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="join-intro">Submit your application to join our league. We'll review your information and contact you with next steps.</p>
                 <form id="joinForm" class="join-form">
                     <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" name="name" class="form-input" placeholder="Enter your full name" required>
+                        <label for="joinName">Full Name *</label>
+                        <input type="text" id="joinName" name="name" class="form-input" placeholder="Enter your full name" required aria-required="true">
                     </div>
                     <div class="form-group">
-                        <label>Email Address *</label>
-                        <input type="email" name="email" class="form-input" placeholder="Enter your email address" required>
+                        <label for="joinEmail">Email Address *</label>
+                        <input type="email" id="joinEmail" name="email" class="form-input" placeholder="Enter your email address" required aria-required="true">
                     </div>
                     <div class="form-group">
-                        <label>Experience Level *</label>
-                        <select name="experience" class="form-input" required>
+                        <label for="joinExperience">Experience Level *</label>
+                        <select id="joinExperience" name="experience" class="form-input" required aria-required="true">
                             <option value="">Select your experience level</option>
                             <option value="beginner">Beginner - New to competitive play</option>
                             <option value="intermediate">Intermediate - Some tournament experience</option>
@@ -158,15 +164,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Additional Information (Optional)</label>
-                        <textarea name="message" class="form-textarea" rows="3" placeholder="Share any relevant pool experience or questions about the league..."></textarea>
+                        <label for="joinMessage">Additional Information (Optional)</label>
+                        <textarea id="joinMessage" name="message" class="form-textarea" rows="3" placeholder="Share any relevant pool experience or questions about the league..." aria-describedby="joinMessageHelp"></textarea>
+                        <span id="joinMessageHelp" class="sr-only">Optional field to share additional information about your pool experience</span>
                     </div>
                     <div id="joinFormStatus" class="form-status" style="display: none;"></div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeJoinModal()">Cancel</button>
-                <button type="submit" form="joinForm" class="btn btn-primary" id="joinSubmitBtn">
+                <button class="btn btn-outline" onclick="closeJoinModal()" aria-label="Cancel application">Cancel</button>
+                <button type="submit" form="joinForm" class="btn btn-primary" id="joinSubmitBtn" aria-label="Submit league application">
                     <span class="submit-text">Submit Application</span>
                     <span class="submit-loading" style="display: none;">Sending...</span>
                 </button>

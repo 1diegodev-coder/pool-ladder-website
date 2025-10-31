@@ -1,5 +1,8 @@
 // Ladder Page JavaScript - Loads data from JSON files
 
+// Import HTML escaping utility for XSS protection
+import { escapeHTML } from './utils/escapeHTML.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAndDisplayLadder();
     initializeFilters();
@@ -163,7 +166,7 @@ function createPlayerRow(player) {
             <td class="player-cell">
                 <div class="player-info">
                     <div class="player-details">
-                        <div class="player-name">${player.name}</div>
+                        <div class="player-name">${escapeHTML(player.name)}</div>
                     </div>
                 </div>
             </td>

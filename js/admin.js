@@ -1,5 +1,8 @@
 // Simplified Admin Panel JavaScript
 
+// Import HTML escaping utility for XSS protection
+import { escapeHTML } from './utils/escapeHTML.js';
+
 // Global data storage
 let adminData = {
     players: [],
@@ -173,10 +176,10 @@ function populateEditPlayerDropdowns() {
     player1Select.innerHTML = '<option value="">Select Player 1</option>';
     player2Select.innerHTML = '<option value="">Select Player 2</option>';
     
-    // Add player options
+    // Add player options (using Option constructor for safe escaping)
     adminData.players.forEach(player => {
-        const option1 = new Option(player.name, player.id);
-        const option2 = new Option(player.name, player.id);
+        const option1 = new Option(escapeHTML(player.name), player.id);
+        const option2 = new Option(escapeHTML(player.name), player.id);
         player1Select.add(option1);
         player2Select.add(option2);
     });
@@ -481,7 +484,7 @@ async function renderPlayersTable() {
     playersList.innerHTML = sortedPlayers.map(player => `
         <div class="player-line" data-player-id="${player.id}">
             <span class="rank-number">#${player.rank}</span>
-            <span class="player-name" ondblclick="editPlayerName(${player.id})" title="Double-click to edit">${player.name}</span>
+            <span class="player-name" ondblclick="editPlayerName(${player.id})" title="Double-click to edit">${escapeHTML(player.name)}</span>
             <div class="player-actions">
                 <button class="btn btn-sm btn-danger" onclick="removePlayer(${player.id})">Remove</button>
             </div>
@@ -755,12 +758,12 @@ function populatePlayerDropdowns() {
         return;
     }
 
-    // Add player options
+    // Add player options (using Option constructor for safe escaping)
     adminData.players.forEach(player => {
         if (player && player.id && player.name) {
             console.log('➕ Adding player to dropdown:', player.name, player.id);
-            const option1 = new Option(player.name, player.id);
-            const option2 = new Option(player.name, player.id);
+            const option1 = new Option(escapeHTML(player.name), player.id);
+            const option2 = new Option(escapeHTML(player.name), player.id);
             player1Select.add(option1);
             player2Select.add(option2);
         } else {
@@ -885,9 +888,9 @@ async function renderScheduledMatches() {
     }
     
     scheduledSection.innerHTML = scheduledMatches.map(match => {
-        const player1Name = match.player1?.name || 'Unknown Player';
-        const player2Name = match.player2?.name || 'Unknown Player';
-        const matchDate = match.date || 'TBD';
+        const player1Name = escapeHTML(match.player1?.name || 'Unknown Player');
+        const player2Name = escapeHTML(match.player2?.name || 'Unknown Player');
+        const matchDate = escapeHTML(match.date || 'TBD');
 
         return `
             <div class="match-card">
@@ -1048,8 +1051,8 @@ async function renderRecentResults() {
     
     recentSection.innerHTML = completedMatches.map(match => {
         const completedDate = match.completedAt || match.date;
-        const player1Name = match.player1?.name || 'Player 1';
-        const player2Name = match.player2?.name || 'Player 2';
+        const player1Name = escapeHTML(match.player1?.name || 'Player 1');
+        const player2Name = escapeHTML(match.player2?.name || 'Player 2');
         const player1Score = match.player1Score ?? 0;
         const player2Score = match.player2Score ?? 0;
         const winnerId = match.winnerId;
@@ -1106,7 +1109,7 @@ async function renderLadderTable() {
             <td class="player-cell">
                 <div class="player-info">
                     <div class="drag-handle">⋮⋮</div>
-                    <span class="player-name">${player.name}</span>
+                    <span class="player-name">${escapeHTML(player.name)}</span>
                 </div>
             </td>
             <td class="record-cell">
