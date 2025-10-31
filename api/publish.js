@@ -1,6 +1,15 @@
 import { Octokit } from '@octokit/rest';
 import jwt from 'jsonwebtoken';
 
+/**
+ * Serverless endpoint for publishing admin data to GitHub
+ * Validates JWT, commits changes to GitHub repo, triggers deployment
+ * 
+ * @param {Object} req - HTTP request object
+ * @param {Object} req.body - Request body with commitMessage, players, matches, meta
+ * @param {Object} res - HTTP response object
+ * @returns {Promise<void>}
+ */
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {

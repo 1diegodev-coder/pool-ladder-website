@@ -2,14 +2,22 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-// Rate limiting storage (in-memory, works for serverless with low cold-start rate)
+/**
+ * Rate limiting storage for login attempts
+ * In-memory Map works for serverless with reasonable cold-start rates
+ * For production at scale, consider Vercel KV or Redis
+ */
 const loginAttempts = new Map();
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes in milliseconds
 const MAX_ATTEMPTS = 5; // Maximum attempts per window
 
-// Helper function to check and update rate limit
+/**
+ * Check and update rate limit for given IP address
+ * @param {string} ip - Client IP address
+ * @returns {Object} Object with {limited: boolean, message?: string}
+ */
 function checkRateLimit(ip) {
     const now = Date.now();
     const attempts = loginAttempts.get(ip) || [];
@@ -45,7 +53,12 @@ function checkRateLimit(ip) {
     return { limited: false };
 }
 
-// Helper function to hash password with salt
+/**
+ * Hash password using PBKDF2 with salt
+ * @param {string} password - Plain text password
+ * @param {string} salt - Cryptographic salt
+ * @returns {string} Hex-encoded password hash
+ */
 function hashPassword(password, salt) {
     return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
 }
