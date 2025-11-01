@@ -368,9 +368,9 @@ Public Pages (Updated)
 ### Bundle Sizes
 
 - **JavaScript**: ~200 KB (within target)
-- **CSS**: ~140 KB (optimization in progress)
+- **CSS**: ~118 KB (optimized ✅)
 - **HTML**: ~50 KB
-- **Fonts**: External (Google Fonts CDN)
+- **Fonts**: ~215 KB self-hosted (Inter, Montserrat, Orbitron)
 
 ---
 
@@ -412,7 +412,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Ultimate Pool Group** - League rules and regulations
 - **EmailJS** - Form submission service
 - **Vercel** - Hosting and serverless functions
-- **Google Fonts** - Inter, Montserrat, Orbitron typefaces
+- **Fontsource** - Self-hosted fonts (Inter, Montserrat, Orbitron)
 
 ---
 

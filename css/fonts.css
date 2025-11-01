@@ -1,0 +1,100 @@
+/**
+ * Self-hosted Fonts
+ * Replaces Google Fonts for better privacy and performance
+ *
+ * Fonts: Inter, Montserrat, Orbitron
+ * Weights: 400, 500, 600, 700, 900
+ */
+
+/* Inter - Primary font (400, 500, 600, 700, 900) */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/inter/inter-latin-400-normal.woff2') format('woff2'),
+         url('../fonts/inter/inter-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/inter/inter-latin-500-normal.woff2') format('woff2'),
+         url('../fonts/inter/inter-latin-500-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/inter/inter-latin-600-normal.woff2') format('woff2'),
+         url('../fonts/inter/inter-latin-600-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/inter/inter-latin-700-normal.woff2') format('woff2'),
+         url('../fonts/inter/inter-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('../fonts/inter/inter-latin-900-normal.woff2') format('woff2'),
+         url('../fonts/inter/inter-latin-900-normal.woff') format('woff');
+}
+
+/* Montserrat - Display font (700, 900) */
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/montserrat/montserrat-latin-700-normal.woff2') format('woff2'),
+         url('../fonts/montserrat/montserrat-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('../fonts/montserrat/montserrat-latin-900-normal.woff2') format('woff2'),
+         url('../fonts/montserrat/montserrat-latin-900-normal.woff') format('woff');
+}
+
+/* Orbitron - Accent font (400, 700, 900) */
+@font-face {
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/orbitron/orbitron-latin-400-normal.woff2') format('woff2'),
+         url('../fonts/orbitron/orbitron-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/orbitron/orbitron-latin-700-normal.woff2') format('woff2'),
+         url('../fonts/orbitron/orbitron-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('../fonts/orbitron/orbitron-latin-900-normal.woff2') format('woff2'),
+         url('../fonts/orbitron/orbitron-latin-900-normal.woff') format('woff');
+}
