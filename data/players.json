@@ -1,33 +1,33 @@
 [
   {
-    "id": 11,
-    "name": "Jack Sharpe",
+    "id": 12,
+    "name": "Jack Finch",
     "rank": 1,
     "wins": 3,
     "losses": 1,
     "status": "active",
+    "createdAt": "2025-09-15T18:49:11.795845+00:00",
+    "lastActive": "2025-11-07T16:28:18.616Z"
+  },
+  {
+    "id": 11,
+    "name": "Jack Sharpe",
+    "rank": 2,
+    "wins": 3,
+    "losses": 2,
+    "status": "active",
     "createdAt": "2025-09-15T18:48:56.03123+00:00",
-    "lastActive": "2025-10-29T14:51:43.703Z"
+    "lastActive": "2025-11-07T16:28:18.616Z"
   },
   {
     "id": 5,
     "name": "Diego Suarez",
-    "rank": 2,
+    "rank": 3,
     "wins": 3,
     "losses": 1,
     "status": "active",
     "createdAt": "2025-09-15T18:05:56.407668+00:00",
     "lastActive": "2025-10-29T14:51:43.703Z"
-  },
-  {
-    "id": 12,
-    "name": "Jack Finch",
-    "rank": 3,
-    "wins": 2,
-    "losses": 1,
-    "status": "active",
-    "createdAt": "2025-09-15T18:49:11.795845+00:00",
-    "lastActive": "2025-10-07T09:22:16.322Z"
   },
   {
     "id": 13,

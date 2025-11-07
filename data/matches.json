@@ -350,5 +350,27 @@
     "loserName": "Diego Suarez",
     "createdAt": "2025-10-29T14:51:37.115Z",
     "completedAt": "2025-10-29T14:51:43.703Z"
+  },
+  {
+    "id": 1762532885801,
+    "status": "completed",
+    "date": "2025-11-04",
+    "time": "00:00:00",
+    "player1": {
+      "id": 11,
+      "name": "Jack Sharpe"
+    },
+    "player2": {
+      "id": 12,
+      "name": "Jack Finch"
+    },
+    "player1Score": 6,
+    "player2Score": 7,
+    "winnerId": 12,
+    "winnerName": "Jack Finch",
+    "loserId": 11,
+    "loserName": "Jack Sharpe",
+    "createdAt": "2025-11-07T16:28:05.801Z",
+    "completedAt": "2025-11-07T16:28:18.616Z"
   }
 ]
